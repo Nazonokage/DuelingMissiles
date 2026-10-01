@@ -1,0 +1,3 @@
+- [x] 1. Designing the wall something like from WW1 or WW2 simple (historical trench wall with embrasures, sandbag parapets, wood support posts, and Czech hedgehogs)
+- [x] 2. Adding a helmet to the piece that matches the team color (military helmet mounted on launcher piece chassis, lerps on damage)
+- [x] 3. Helmet on characters (military helmets on crew soldiers matching team primary color)

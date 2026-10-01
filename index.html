@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dueling Missiles</title>
+<link rel="stylesheet" href="/src/game.css">
+</head>
+<body class="intro">
+<button id="reset-camera" aria-label="Reset camera">Reset view</button>
+<div id="announce"></div>
+<div id="wind-hud" title="Wind direction & strength"><div id="wind-arrow">↑</div><div id="wind-label">WIND</div></div>
+<div id="event-feed" aria-live="polite"></div>
+<div id="label"></div>
+<div id="bars"></div><button id="kb" title="show/hide on-screen keys">⌨</button>
+<button id="dbtn" title="director view (F2)">🛠</button><button id="hbtn" title="show / hide guide (F1)">?</button><button id="sbtn" title="sound on/off (X)">🔊</button><button id="fbtn" title="heatmap analytics (H)">🔥</button>
+<div id="heat"><b>HEATMAP · bird's-eye</b><div id="hstat"></div><div class="lg"></div><div class="ll"><span>cold</span><span>hot</span></div><div id="hf"><button data-f="-1" class="on">All</button><button data-f="0">P1</button><button data-f="1">P2</button></div></div>
+<div id="dir"><b>DIRECTOR VIEW</b><br>source → editor doc → draft → export (a proposal only, gameplay unchanged)<br><button id="cp" style="margin-top:6px;padding:3px 8px">Copy layout JSON</button></div><div id="tags"></div>
+<div id="hud"><div id="hint"></div><div id="st"></div><div id="pw"><i></i></div><div id="chips"></div></div>
+<div id="pad"><button data-k="l" style="grid-area:l">◀</button><button id="fire" style="grid-area:f">FIRE</button><button data-k="r" style="grid-area:r">▶</button>
+<button data-a="prev" title="previous cannon" style="grid-area:p;display:flex;align-items:center;justify-content:center;gap:4px">‹ <svg viewBox="0 0 32 20" width="30" height="20" fill="currentColor" style="pointer-events:none"><rect x="5" y="3" width="23" height="7" rx="2.5" transform="rotate(-18 10 10)"/><circle cx="11" cy="14.5" r="4.5"/><circle cx="11" cy="14.5" r="1.5" fill="var(--paper)"/></svg></button><button id="msl" data-a="msl" title="pick a spent missile (M)" style="grid-area:c">🚀 M missiles</button><button data-a="next" title="next cannon" style="grid-area:n;display:flex;align-items:center;justify-content:center;gap:4px"><svg viewBox="0 0 32 20" width="30" height="20" fill="currentColor" style="pointer-events:none"><rect x="5" y="3" width="23" height="7" rx="2.5" transform="rotate(-18 10 10)"/><circle cx="11" cy="14.5" r="4.5"/><circle cx="11" cy="14.5" r="1.5" fill="var(--paper)"/></svg> ›</button></div>
+<div class="ov" id="setup">
+  <h1>DUELING MISSILES</h1>
+  <div class="row"><span>Launchers</span><button class="on" data-k="n" data-v="5">5</button><button data-k="n" data-v="7">7</button></div>
+  <div class="row"><span>Launcher HP</span><button data-k="hp" data-v="1">1</button><button class="on" data-k="hp" data-v="2">2</button><button data-k="hp" data-v="3">3</button></div>
+  <div class="row"><span>Theme</span><button class="on" data-k="theme" data-v="paper">Paper</button><button data-k="theme" data-v="blueprint">Blueprint</button><button data-k="theme" data-v="night">Night</button></div>
+  <div class="row"><label for="p1country">Player 1 country</label><select id="p1country"></select><span id="p1preview"></span></div>
+  <div class="row"><label for="p2country">Player 2 country</label><select id="p2country"></select><span id="p2preview"></span></div>
+  <div style="font-size:13px">Country flags and colors are cosmetic. Original music only; no historical recordings.</div>
+  <details><summary>Camera, effects &amp; quality</summary>
+    <div class="row"><label><input id="reduced-motion" type="checkbox"> Reduced motion</label></div>
+    <div class="row"><label><input id="particles" type="checkbox" checked> Particles</label><label><input id="shake" type="checkbox" checked> Camera shake</label><label><input id="sfx" type="checkbox" checked> Sound effects</label></div>
+    <div class="row"><label><input id="color-safe" type="checkbox"> Color-safe teams</label><label><input id="cosmetics" type="checkbox" checked> Country cosmetics</label></div>
+    <div class="row"><label for="quality">Quality</label><select id="quality"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+    <div class="row"><label for="seed">Match seed</label><input id="seed" type="number" min="0" max="4294967295" value="2026"></div>
+  </details>
+  <div class="row"><label for="music-volume">Music volume</label><input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.42"></div>
+  <div style="font-size:13px;opacity:.75">🎵 Music shuffles automatically through all tracks</div>
+  <div style="font-size:15px;opacity:.7">PC: 1-9 pick cannon · Space fire · drag upper field to look · C reset camera<br>Buttons turn RED when you cannot use them</div><button id="go" style="font-size:28px;padding:8px 34px;margin-top:10px">START</button>
+</div>
+<div class="ov" id="end"><div id="endt"></div><button onclick="location.reload()">Play again</button></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+# Changelog
+
+All notable project changes are recorded here as implementation work progresses.
+
+## Explosion focus with system reduced motion — 2026-10-01
+
+- Removed the reduced-motion bypass that skipped explosion focus and slow motion entirely, including when inherited from the operating system.
+- Reduced motion now uses a stationary close-up with cuts, preserving the explosion focus without camera travel.
+- Browser tests now retain default motion preferences and cover recast missile hits against cannons as well as direct shots and interceptions.
+
+## Stationary explosion focus by default — 2026-10-01
+
+- The follow camera approaches the explosion from its existing direction, settles nearby, and holds both position and zoom instead of orbiting or alternating angles.
+- Removed the Cinema button and explosion-camera setup switch; explosion focus and slow motion are now default behavior, respecting reduced motion and inspection views.
+- Browser checks verify that camera position and field of view remain unchanged during the hold.
+
+## Tighter close-ups for every explosion — 2026-10-01
+
+- More than halved the impact camera distance, from 14 to 6.5 units, with portrait framing adjustment.
+- Every blast now refocuses the camera and restarts a two-second close-up at 12% speed, including blasts that occur during another cinematic.
+- Added regression coverage for explosions interrupting the return to gameplay.
+
+## Explosion close-ups and slow motion — 2026-10-01
+
+- Cut immediately to cannon and missile explosions, keeping the blast centered with an inward-facing angle that avoids the fort wall and extra framing space in portrait mode.
+- Slow simulation, debris, fireballs, and shockwaves to 16% speed during the close-up, then ease back to normal speed and the live gameplay camera.
+- Prevent chain reactions from restarting the cinematic. Ordinary missed launcher shots no longer trigger an explosion close-up.
+- Preserve Cinema off and reduced-motion preferences, plus director/heatmap overrides.
+- Added camera lifecycle tests and browser collision fixtures for cannon hits, missile interceptions, and reduced motion.
+
+## Keyboard and on-screen controls — 2026-10-01
+
+- Fixed a JavaScript syntax error blocking startup and removed stale references to deleted music selectors.
+- Gameplay shortcuts now work while game buttons have focus; text inputs keep normal editing behavior.
+- Track each held key and pointer independently; capture on-screen holds and cancel safely on interruption without firing.
+- Keep steering buttons available during launcher flight and clear held input between turns and at match end.
+- Corrected two truncated music paths and guarded playback against late promises, repeated failed tracks, and restarting after match end.
+- Updated obsolete music tests for the current shuffled jukebox and added input regression coverage.
+
+## Emulator log cleanup — 2026-10-01
+
+- Added isolated firebase.test.json with an explicit demo database instance to resolve the CLI/test-library namespace mismatch without disabling single-project checks.
+- Moved rules tests to loopback port 9001 to avoid interrupting an existing process on 9000. Tests consume the CLI-provided emulator endpoint.
+- Rules tests passed; confirmed no multiple-project namespace warning in the new emulator log. Mock-token and intentional permission-denied messages remain expected.
+
+## Apex-triggered launcher wobble — 2026-10-01
+
+- Launcher wobble now starts at the trajectory apex, calculated from initial vertical speed and gravity, instead of a fixed 1.2-second delay. The climb stays stable at every power/elevation; drift grows during descent.
+- Steps crossing the apex apply wobble only to their descending portion. Recast drift and camera behavior are unchanged.
+- Regression tests cover early/late apexes, crossing steps, preserved horizontal speed, and step-size consistency.
+
+## Missile view and accuracy follow-up — 2026-10-01
+
+- Added independent orbit/pitch/zoom controls during missile selection and recast flight, centered on the missile. Default distance is 95 instead of 135 for flight (previous selection framing was 240); zoom spans 35–240. Reset, smoothing, pointer cleanup, and launcher controls remain separate.
+- Added seeded horizontal wobble to launcher shots after a 1.2-second stable interval; gravity and horizontal speed are preserved. Reused the recast waveform with a bounded late-flight ramp. Recast steering and temporary straight boost remain available.
+- Added drift grace-period, speed-preservation, step-size consistency, and bird-camera limit/reset regression tests, plus browser takeover/orbit/zoom/reset/launch/boost checks.
+- The ideal aim guide does not predict drift. Difficulty still needs human playtesting; full render-independent simulation remains future work.
+
+## Camera framing follow-up — 2026-10-01
+
+- Raised and pulled back the default aiming camera, with a wider portrait view and focus ahead of the selected launcher so the arena is easier to read.
+- Shared elevated defaults between normal framing, orbit, and reset; expanded zoom range and pulled the missile-follow camera back/up.
+- Hide decorative clouds when the camera is above them to prevent battlefield occlusion.
+- Verified production build, four regression tests, and shot/turn browser checks at desktop, portrait, and landscape sizes. Reviewed framing screenshots; physical phone testing remains outstanding.
+
+## 0.6.0 — local repair pass (2026-10-01)
+
+- Split the preserved prototype into Vite entry HTML, CSS, and JavaScript; extracted music lifecycle and camera pointer controls. Pinned/bundled Three.js r128 to retain the existing renderer API and remove the runtime CDN dependency.
+- Changed Hosting public directory to dist to avoid publishing source and configuration files.
+- Replaced the unsafe database draft with a deny-client-writes policy and existing-member reads. This closes unvalidated membership/command creation while the trusted backend is absent. Rules emulator checks passed; this does not implement PvP.
+- Fixed independent per-player music resume, empty sources, media failures, autoplay retries, mute, volume, backgrounding, and match end. Both setup selectors now offer the same list and None.
+- Added pointer-ID tracking, pinch, touch reset, bounded/team-relative orbit, smooth camera position/look targets, and capture cleanup. Replaced the exact-zero bird-view test with a transition threshold so free orbit becomes available again.
+- Guarded gameplay keys before match setup and fixed selected launcher chips inheriting fixed positioning.
+- Verification: production build and four Node regression tests passed; desktop and emulated portrait/landscape shot/turn smoke tests passed without page errors. Real generated-tone playback tests also passed in all three viewport setups (six browser tests total). No physical-device, online, or live-site verification is claimed.
+- Limitations: no supplied music recordings, country system, impact camera, fixed-step simulation, trusted backend, Firebase app config, or deployment. The historical HTML remains unchanged. Build chunk-size warning and 10 Firebase dev-tool transitive audit findings remain; runtime audit is clean.
+
+## Unreleased — roadmap consolidation
+
+- Consolidated the project direction into [todo.md](todo.md).
+- Recorded the Firebase Realtime Database endpoint and confirmed anonymous authentication is enabled.
+- Chose Firebase Hosting for the first deployment target.
+- Defined the target repository as `Nazonokage/DuelingMissiles`.
+- Documented the planned mobile camera, music-theme, field-polish, PvP, security, QA, and release work.
+
+## Unreleased — mobile rendering baseline
+
+- Added device-aware renderer quality defaults using touch capability and `navigator.deviceMemory` when available.
+- Reduced pixel ratio, antialiasing, and particle limits on constrained mobile devices.
+- Preserved adaptive resolution scaling when frame time rises, with a safe floor of 1x pixel ratio.
+
+## Unreleased — free aiming camera baseline
+
+- Added a bounded local camera orbit and zoom layer while aiming.
+- Kept camera orbit independent from projectile shot aim.
+- Added camera reset with the `C` key and pointer/touch drag support in the upper playfield.
+
+## Unreleased — themes and Firebase foundation
+
+- Added pre-match Player 1 and Player 2 music-theme selectors.
+- Added a persistent music manager that pauses and resumes each player’s saved playback position.
+- Kept theme URLs empty until licensed arrangements are added to `public/audio`.
+- Added initial `firebase.json` Hosting/Database configuration.
+- Added a restrictive `database.rules.json` baseline for authenticated match access, player slots, and one-time commands.
+
+## 0.5 — existing prototype baseline
+
+- Turn-based local artillery duel with launcher selection and health.
+- Charge-and-fire missile interaction with missile takeover mode.
+- Mobile touch controls and desktop keyboard controls.
+- Paper, blueprint, and night visual themes.
+- Director/heatmap views and basic scenery, flags, HUD, sound, and effects.
+
+
+
+# Dueling Missiles — next implementation checklist
+
+## Completed
+
+- Renamed the game title to Dueling Missiles.
+- Added README.md, CHANGELOG.md, and .gitignore.
+- Added mobile-aware Three.js quality settings.
+- Added adaptive resolution scaling.
+- Added free-look camera orbit while aiming.
+- Added camera zoom and C-key reset.
+- Kept camera movement separate from projectile aim.
+- Added Player 1/Player 2 music selectors.
+- Added persistent music pause/resume behavior.
+- Added Firebase Hosting configuration.
+- Added initial Realtime Database security rules.
+- Confirmed Firebase database URL:
+  https://misileduels-default-rtdb.asia-southeast1.firebasedatabase.app/
+- Confirmed anonymous authentication is enabled.
+- Node.js and Git are installed.
+- Local Git repository was initialized.
+
+## Next tasks
+
+1. Verify workspace file and command access.
+2. Split the single HTML file into:
+   - index.html
+   - css/game.css
+   - js/main.js
+   - js/camera.js
+   - js/audio.js
+   - js/countries.js
+   - js/game-state.js
+   - js/firebase-pvp.js
+3. Replace temporary music selectors with country selection.
+4. Make each country control:
+   - Flag
+   - Color palette
+   - Banner
+   - Launcher styling
+   - BGM selection
+5. Add countries:
+   - Italy — Funiculì, Funiculà-inspired arrangement
+   - France — verified Chanson-inspired theme
+   - Finland — Säkkijärven Polkka-inspired arrangement
+   - UK — British Grenadiers-inspired arrangement
+   - Germany — Erika-inspired arrangement with historical context
+   - Russia — Katyusha-inspired arrangement
+6. Use only original or properly licensed recordings.
+7. Add hit-camera cinematic:
+   - Focus camera on impact location.
+   - Show explosion clearly.
+   - Add bounded shake and hit-stop.
+   - Return smoothly to the active launcher.
+   - Support reduced-motion mode.
+8. Add Firebase anonymous sign-in.
+9. Add room creation and room joining.
+10. Add player presence and disconnect handling.
+11. Add synchronized turns.
+12. Send only committed shot commands to Firebase.
+13. Keep camera movement and particles local.
+14. Add authoritative shot validation/resolution.
+15. Add reconnect grace period.
+16. Add duplicate, stale, forged, and out-of-turn command protection.
+17. Add licensed audio files and attribution records.
+18. Add mobile QA:
+   - Portrait
+   - Landscape
+   - Low-memory device
+   - Reduced motion
+   - Muted audio
+   - Background/resume
+   - Two-device PvP
+19. Configure Firebase Hosting deployment.
+20. Test the live deployment.
+21. Connect the project to:
+   https://github.com/Nazonokage/DuelingMissiles
+22. Commit and push only after the build passes live smoke testing.
+
+## Important constraints
+
+- Keep Three.js + Vite instead of React or Next.js.
+- Do not copy Girls und Panzer characters, logos, uniforms, dialogue, or assets.
+- Keep flags, countries, and music cosmetic only.
+- Do not use extremist symbols as casual or celebratory cosmetics.
+- Do not place Firebase admin credentials in the browser.
+- Do not sync camera movement frame-by-frame.
+- Do not mark tasks complete until they are actually implemented and tested.
