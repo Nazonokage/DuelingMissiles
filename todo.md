@@ -8,8 +8,6 @@
 
 ## Repair checkpoint — 2026-10-01 (current)
 
-This checkpoint supersedes the earlier handoff below. The earlier prototype and roadmap remain as historical context; unchecked features are not implicitly complete.
-
 - [x] Added Vite, lockfile, index.html, separate CSS/main module, extracted music manager and pointer-camera module. Three.js r128 is bundled locally.
 - [x] Hosting now serves dist, not the source directory. Production build passes. No deployment/site association was attempted.
 - [x] Replaced unsafe rules with member-only match reads and no client writes. Local Rules emulator verifies allowed member reads and denied outsider/anonymous reads, membership/command/snapshot/turn/meta writes. This is an interim lockdown, not online PvP.
@@ -21,8 +19,6 @@ This checkpoint supersedes the earlier handoff below. The earlier prototype and 
 - [ ] Country selection, cosmetic flags/palettes, impact camera, further module extraction, online services, and release remain outstanding.
 - [ ] Firebase Web app config and explicit Hosting project/site association are still needed. No remote, commit, push, or live deployment was performed.
 - [ ] Resolve/reassess 10 transitive audit findings in Firebase development tooling before release; runtime dependency audit is clean.
-
-Verification commands and practical limitations are in README.md. Use npm run dev; the original standalone HTML is an unchanged historical reference.
 
 ## Handoff checkpoint — 2026-10-01
 
@@ -219,49 +215,93 @@ shotAim = { yaw, pitch, committedAxis, power }
 - [ ] Provide fictional public-matchmaking names and a disable-cosmetics option.
 - [ ] Add a report path for offensive cosmetics before public matchmaking.
 
-## Phase 6 — Firebase PvP
+## Phase 6 — Next.js WebSocket PvP
 
 ### Match lifecycle
 
-1. Anonymous sign-in returns a Firebase `uid`.
-2. Player creates or joins a short room code.
-3. Host creates rules, seed, theme IDs, and player slots.
-4. Both clients subscribe to match state.
-5. Active player submits one committed shot.
-6. Trusted resolver validates and resolves the shot.
-7. Both clients receive the canonical snapshot/events.
-8. Current music pauses and the next theme resumes.
+1. Player loads `/play` page (Next.js).
+2. WebSocket connects on page load.
+3. Player creates or joins a short room code (random matchmaking button optional).
+4. Host creates rules, seed, theme IDs, and player slots.
+5. Both clients subscribe to match state.
+6. Active player submits one committed shot via socket.
+7. Server runs deterministic simulation (seeded) and broadcasts result.
+8. Music pauses and next theme resumes.
 9. New turn begins, or match finishes.
 
-### Realtime Database layout
+### WebSocket route handler (`app/api/ws/route.ts`)
 
-```text
-matches/{matchId}
-  meta: { version, createdAt, status, seed, rules }
-  players/{uid}: { slot, displayName, themeId, connected, lastSeen }
-  turn: { number, activeUid, phase, deadline }
-  commands/{turnNumber}: { uid, launcherId, aim, power, clientAt, nonce }
-  snapshots/{turnNumber}: { canonicalState, hash, resolvedAt }
-  events/{eventId}: { type, turnNumber, payload, createdAt }
+```ts
+import { experimental_upgradeWebSocket } from '@vercel/functions';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
+  const upgrade = experimental_upgradeWebSocket(request);
+  if (!upgrade) return new Response('Upgrade failed', { status: 500 });
+
+  const { socket, response } = upgrade;
+
+  let roomCode = '';
+  let playerId = '';
+  let seed = 0;
+
+  socket.on('connect', () => {
+    console.log('Player connected:', socket.id);
+    playerId = socket.id;
+  });
+
+  socket.on('create-or-join', ({ seed: incomingSeed }) => {
+    seed = incomingSeed || Math.random();
+    roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    globalThis.rooms = globalThis.rooms || new Map();
+    globalThis.rooms.set(roomCode, { players: [playerId], seed });
+    socket.join(roomCode);
+    socket.emit('room-created', { code: roomCode, seed });
+  });
+
+  socket.on('join-room', ({ code }) => {
+    const room = globalThis.rooms.get(code);
+    if (!room || room.players.length >= 2) return;
+    room.players.push(playerId);
+    socket.join(code);
+    socket.emit('player-joined');
+  });
+
+  socket.on('shot', ({ power, angle, launcher }) => {
+    const room = globalThis.rooms.get(roomCode);
+    if (!room) return;
+    const result = simulateShot(room.seed, power, angle, launcher); // your exact FixedStepper
+    socket.to(roomCode).emit('shot-result', { ...result, turn: room.state.turn });
+  });
+
+  socket.on('chat-message', (message) => {
+    socket.to(roomCode).emit('chat-message', { id: playerId, text: message });
+  });
+
+  socket.on('disconnect', () => {
+    // cleanup
+  });
+}
+
+function simulateShot(seed, power, angle, launcher) {
+  // Paste your src/game/simulation.js FixedStepper + seededRandom here
+  // Returns { hit, damage, chain, etc. }
+}
 ```
 
-- [ ] Send only committed shots, not camera transforms or per-frame missile positions.
-- [ ] Use Firebase server timestamps for deadlines and presence.
-- [ ] Use transactions/compare-and-set so only the active player submits once.
-- [ ] Use nonce/idempotency keys to prevent duplicate shots.
-- [ ] Resolve from a shared seed and canonical command.
-- [ ] Add 20–30 seconds reconnect grace and a defined forfeit policy.
-- [ ] Add match expiry and cleanup.
+### Realtime features
 
-### Security
+- In-memory rooms (Vercel KV later for scale).
+- Random matchmaking button (creates room + auto-joins).
+- Full text chat with last-50-messages replay on join.
+- Only committed shots are sent (no camera/transforms synced).
+- Deterministic server simulation — no client trust.
+- Reconnect grace + 30-second timeout.
+- Room expiry after 30 minutes.
 
-- [ ] Require `auth != null` for match access.
-- [ ] Allow writes only to an authorized match and the player’s own slot.
-- [ ] Allow only the active UID to write the current-turn command.
-- [ ] Prevent clients from writing snapshots, winners, or other players’ identities.
-- [ ] Validate numeric ranges, turn number, nonce, theme ID, launcher ID, and payload size.
-- [ ] Add rate limits, room-creation limits, and App Check where available.
-- [ ] Test forged, duplicate, stale, simultaneous, and out-of-turn commands.
+- [ ] Test on two phones, disconnects, stale commands, duplicate shots.
+- [ ] Deploy to Vercel (one-click, free).
 
 ## Phase 7 — mobile QA
 
@@ -294,4 +334,5 @@ matches/{matchId}
 - Invalid, duplicate, stale, and out-of-turn commands are rejected.
 - Low-quality mode remains playable on a mid-range phone.
 - Hosting deployment and repository state are documented and reproducible.
+- **(Firebase removed — now runs on Next.js + WebSockets + chat)**
 

@@ -2,6 +2,21 @@
 
 All notable project changes are recorded here as implementation work progresses.
 
+## Sky lobby, stencil type and camera transitions — 2026-10-02
+
+- Redesigned pre-match settings using the supplied Blue Cloudy Clean Modern direction: a sky gradient, soft atmospheric light, restrained framing, a bright settings panel, and a prominent start button. Settings remain scrollable on small screens and retain their existing behavior.
+- Bundled Black Ops One and its SIL license locally for military stencil titles and main controls, with clean sans-serif labels, stronger HUD surfaces, keyboard focus outlines, and accessible selected states. Draw country flag previews so Windows does not substitute letter codes.
+- Removed the battlefield grid. Smoothed entry, exit, and interrupted switches for director/heatmap views. Explosion recovery now frames the next player's launcher directly, preserving the close-up hold, input lock, and reduced-motion cuts.
+- Added regression checks for camera transitions, single turn handoff after an explosion, local font loading, responsive settings, and match-option selection.
+- Verification: production build and 14 unit tests passed; all 48 desktop/emulated portrait/landscape browser checks reported passing. Reviewed settings and grid-free gameplay screenshots. The browser runner again stalled during cleanup and was interrupted after its final check. Physical-device motion and touch testing remains outstanding.
+
+## Last launcher and missed-shot camera — 2026-10-02
+
+- A player's sole surviving launcher no longer reloads after firing. Clear any earlier reload lock when its next turn starts, so losing the other launchers cannot force a reload-only turn. Multiple surviving launchers retain their reload cycle.
+- Hold the follow camera's position and zoom on an ordinary miss, focus on the landed missile, then move directly to the incoming player instead of returning to the outgoing launcher first.
+- Add browser regressions for both players' final launchers, normal reload recovery, and the missed-shot camera hold and handoff.
+- Verification: production build and 12 unit tests passed; all 39 desktop/emulated-touch browser checks reported passing. The browser runner stalled during cleanup and was interrupted after the final check. Existing bundle-size warning remains; physical-device testing is still outstanding.
+
 ## Explosion focus with system reduced motion — 2026-10-01
 
 - Removed the reduced-motion bypass that skipped explosion focus and slow motion entirely, including when inherited from the operating system.
