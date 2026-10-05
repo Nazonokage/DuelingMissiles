@@ -1,6 +1,6 @@
 # Dueling Missiles
 
-Local two-player artillery game built with Three.js and Vite. The original `Missile Duel – Prototype 0.5.html` is retained as a historical reference; use `index.html` through Vite for the repaired game.
+Local and online two-player artillery game built with Three.js and Vite. The original `Missile Duel – Prototype 0.5.html` is retained as a historical reference; use `index.html` through Vite for the repaired game.
 
 ## Run locally
 
@@ -19,9 +19,9 @@ The pre-match lobby uses a blue sky background, a clear settings panel, country 
 
 When a player has only one surviving launcher, it can fire on every turn without reloading. Any existing reload lock clears at the start of that player's next turn. Players with multiple launchers retain the usual reload cycle, and spent missiles remain available for takeover.
 
-Hold Space or FIRE to charge; release to launch. A/D or arrow keys aim; Q/E and number keys select launchers; M selects spent missiles for takeover. Launcher shots climb without sideways drift, then develop smooth seeded wobble from the peak of their arc as they descend. The peak timing follows each shot’s launch power and elevation; gravity remains unchanged. The aim guide shows the ideal arc, not the random deviation. Recast missiles retain one-hold steering, growing drift (bounded late in flight), and a one-time boost that temporarily flies straight.
+Hold Space or FIRE to charge; release to launch. A/D or arrow keys aim; Q/E and number keys select launchers; M selects spent missiles for takeover. With Missile wobble enabled in setup, launcher shots develop smooth seeded wobble from the peak of their arc as they descend. The peak timing follows each shot’s launch power and elevation; gravity remains unchanged. Disable Missile wobble for stable shots and recasts. Wind remains active during both ascent and descent, even with wobble disabled. Each turn supplies 0.6–1.8 m/s² of constant horizontal acceleration (2.7–8.1 world units of drift over a three-second unsteered flight); the aim guide includes wind, but excludes steering and random wobble. Airborne launcher steering is reduced to 0.55 radians per second. Recast missiles retain one-hold steering, growing drift (bounded late in flight), and a one-time boost that temporarily flies straight.
 
-Drag the upper playfield to orbit while aiming, pinch or use the wheel to zoom, and press C or **Reset view** to return. The default camera is raised and pulled back, with extra viewing distance in portrait mode. Orbit and reset share this elevated framing; zoom covers a wider range. Camera motion is smoothed and framed relative to the current team. Camera gestures are cancelled when changing modes, losing focus, or backgrounding. Camera input does not write shot aim. In missile selection and recast mode, drag the upper field to orbit freely, pinch or scroll to zoom (35–240 units), and use Reset view/C to restore the closer 95-unit bird’s-eye framing. This view tracks the selected or active missile and uses independent controls from the launcher camera.
+Tap or click your spent missiles to select them, then FIRE to take over. Swipes and pinches move the camera without selecting missiles. Drag the playfield to orbit while aiming, pinch or use the wheel to zoom, and press C or **Reset view** to return. The default camera is raised and pulled back, with extra viewing distance in portrait mode. Orbit and reset share this elevated framing; zoom covers a wider range. Camera motion is smoothed and framed relative to the current team. Camera gestures are cancelled when changing modes, losing focus, or backgrounding. Camera input does not write shot aim. In missile selection and recast mode, drag the field to orbit freely, pinch or scroll to zoom (35–240 units), and use Reset view/C to restore the closer 95-unit bird’s-eye framing. This view tracks the selected or active missile and uses independent controls from the launcher camera.
 
 Music shuffles through the bundled tracks continuously across turns. The sound button mutes music and effects; music pauses when backgrounded and stays stopped at match end. Music volume is adjustable in setup. Failed tracks are removed from the current queue, and autoplay failures can retry after input. Playback tests use an original generated test tone.
 
@@ -37,28 +37,30 @@ On every explosion, the follow camera moves closer along its current approach di
 - `src/audio/music-manager.js`: shuffled music playback and lifecycle.
 - `src/camera/touch-look.js`: tracked pointers, pinch, bounded orbit, and gesture cleanup.
 
-The simulation is still coupled to rendering. No deterministic online simulation or measured optimization gain is claimed.
+Gameplay advances at a fixed 120 Hz. Online matches use the authoritative Node WebSocket server in `server/duel.js`; clients submit controls and receive snapshots. No measured optimization gain is claimed.
 
 ## Verification
 
 ```sh
 npm test
 npm run test:browser
-npm run test:rules
 ```
 
 Browser tests use installed Microsoft Edge, headlessly, in desktop and emulated touch portrait/landscape viewports. Screenshots are written to ignored `test-results/`. Tests cover setup, pre-start input, camera reset, sound toggle, shot/turn progression, and playback with generated audio. These checks do not replace testing on two physical phones or listening on real devices.
 
-Database tests require Java 21+ and download the Firebase database emulator on first run. They use only `demo-dueling-missiles`, never the live database. The isolated `firebase.test.json` binds port 9001 and explicitly aligns the database instance with the test namespace. Tests read their endpoint from the emulator-provided environment variable. Startup INFO, mock service-account-token messages, and permission_denied messages from rejection tests are expected; a passing run ends with PASS and exit code 0. Existing members can read their match; anonymous users and nonmembers cannot; all client writes are denied, including player identities, commands, snapshots, metadata, and turns.
+## Online play and release status
 
-## Firebase and release status
+Development and preview include the WebSocket lobby automatically. For the production server:
 
-Hosting now serves **only `dist`**. No live deployment or push was performed. No Firebase Web app configuration, Hosting site association, client Auth integration, or trusted match resolver exists yet.
+```sh
+npm run build
+npm start
+```
 
-The previous database rules allowed unsafe player and command writes. The replacement is a tested, fail-closed interim policy: only a future trusted backend using Admin privileges may create membership or change match state. It deliberately does not provide room creation/joining or playable online PvP.
+The server serves only `dist` and listens on port 3000 (override with `PORT` and `HOST`). Choose an anonymous name, host a match, or search for a host and request to join. The host approves requests and supplies match settings, including wobble. The server validates turn ownership and ordered controls; disconnected matches pause and can resume using the same browser session token. Rooms are held in memory and disappear on server restart.
 
-Before online release, implement the trusted service and a validated ordered action protocol covering launch, missile takeover, steering, and boost; test uniqueness, turn ownership, replay rejection, reconnects, and canonical outcomes. Obtain the Firebase Web app config and confirm project/site and backend billing requirements. Never put service-account credentials in the browser.
+The left wind indicator points downwind relative to your current camera. Turret flags and the windsock point in the same world direction. Flight analytics starts with a closer arena view and draws recorded missile trails, including launcher shots and recasts, over the heat layer. Drag to pan, pinch or scroll to zoom, or use the +, − and Reset buttons. All / P1 / P2 filters affect trails and impacts. The latest 200 trails observed during the session are retained, and team-colored cannon outlines mark surviving launchers.
 
-The production dependency audit reports no vulnerabilities. Firebase **development/test tooling** currently has 10 transitive audit findings (5 moderate, 5 high); compatible automatic fixes were unavailable. Revisit that tooling before release. The build reports a large bundled-JavaScript chunk warning; no performance claim is made from build size or desktop emulation.
+No live deployment is claimed. Production hosting must support a persistent Node process and WebSocket upgrades. The build may report a large JavaScript chunk; physical-device performance and human difficulty tuning remain outstanding.
 
 See [todo.md](todo.md) for remaining work and [CHANGELOG.md](CHANGELOG.md) for implementation evidence.

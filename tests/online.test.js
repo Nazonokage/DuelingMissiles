@@ -12,7 +12,7 @@ const command=(g,action,data={},player=g.turn)=>g.command(player,{turnId:g.turnI
 test('anonymous names and host settings are bounded and normalized',()=>{
   for(const name of ['Sky-1234','Pilot Three','A_b'])assert.equal(validName(name),true);
   for(const name of ['',null,'ab','<img src=x>','a'.repeat(21),' name'])assert.equal(validName(name),false);
-  assert.deepEqual(matchConfig({n:900,hp:500,theme:'x'}),{n:5,hp:2,theme:'blueprint',p1country:'italy',p2country:'france'});
+  assert.deepEqual(matchConfig({n:900,hp:500,theme:'x'}),{wobble:true,n:5,hp:2,theme:'blueprint',p1country:'italy',p2country:'france'});
 });
 test('server owns charging, shot result, health and turn; stale/out-of-turn controls are rejected',()=>{
   const g=new Duel({},14);advance(g,1.5);
@@ -80,4 +80,35 @@ test('cancelled requests disappear and a disconnected duel pauses then resumes w
  const ws=new WebSocket(host.ws.url);t.after(()=>ws.terminate());const incoming=[];ws.on('message',d=>incoming.push(JSON.parse(d)));await once(ws,'open');
  ws.send(JSON.stringify({type:'hello',token:guest.hello.token,name:'Wrong-Name'}));
  await new Promise(r=>setTimeout(r,100));assert.ok(incoming.some(m=>m.type==='match'&&m.seat===1));assert.ok(g.tick>tick);
+});
+
+test('wobble setting is shared, wind follows constant acceleration and launcher steering is gentler',()=>{
+ assert.equal(matchConfig({wobble:false}).wobble,false);
+ const run=(hz,steer=0)=>{
+  const g=new Duel({wobble:false},1);g.state='flying';g.wind.set(.1,0,-.08);g.held=steer;
+  g.ball={p:new Vector3(0,40,0),v:new Vector3(0,8,-20),t:0,seed:2,apexTime:0,side:0,used:false};
+  for(let i=0;i<hz;i++)g.step(1/hz);return g.ball;
+ };
+ const a=run(30),b=run(120);assert.ok(a.p.distanceTo(b.p)<1e-9);
+ assert.ok(a.p.distanceTo(new Vector3(.05,39,-20.04))<1e-9);
+ const steered=run(120,1);const angle=Math.atan2(steered.v.x,-steered.v.z);
+ assert.ok(angle>.5&&angle<.6);
+});
+
+test('recast wobble can be disabled while wind still accumulates',()=>{
+ const run=wobble=>{const g=new Duel({wobble},4);g.state='control';g.wind.set(.1,0,0);
+  g.ball={p:new Vector3(0,1.4,0),v:new Vector3(),ctl:true,armed:true,t:0,seed:2,psi:0,om:0,side:0,used:false,boost:0};
+  advance(g,1);return g.ball;
+ };
+ const stable=run(false),drifting=run(true);assert.equal(stable.psi,0);assert.ok(Math.abs(stable.p.x-.05)<1e-9);assert.notEqual(drifting.psi,0);
+});
+
+test('online trail events identify separate launcher and recast paths and landing endpoints',()=>{
+ const g=new Duel({},5);advance(g,1.5);command(g,'charge');command(g,'release');
+ const id=g.ball.id;assert.equal(g.events.at(-1).missileId,id);
+ g.ball.p.set(0,.2,0);g.step();let event=g.events.findLast(e=>e.type==='land');
+ assert.equal(event.missileId,id);assert.equal(event.ctl,false);assert.ok(event.p[1]<.3);
+ g.state='aiming';assert.equal(command(g,'takeover',{id}),true);command(g,'go');
+ event=g.events.at(-1);assert.equal(event.type,'recast');assert.equal(event.missileId,id);
+ g.ball.t=6;g.step();event=g.events.findLast(e=>e.type==='land');assert.equal(event.missileId,id);assert.equal(event.ctl,true);
 });

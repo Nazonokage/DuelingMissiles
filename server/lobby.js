@@ -1,8 +1,11 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { randomBytes, randomUUID } from 'node:crypto';
+import { allowedOrigins, acceptsOrigin } from './origins.js';
 import { Duel, matchConfig, validName } from './duel.js';
 
-export function attachLobby(httpServer,{graceMs=30000}={}) {
+export function attachLobby(httpServer,{graceMs=30000,origins=process.env.PUBLIC_ORIGINS||process.env.PUBLIC_ORIGIN||'',maxConnectionsPerIP=Number(process.env.MAX_CONNECTIONS_PER_IP)||12}={}) {
+  const permitted=allowedOrigins(origins);
+  if(!Number.isInteger(maxConnectionsPerIP)||maxConnectionsPerIP<1||maxConnectionsPerIP>256)throw new Error('MAX_CONNECTIONS_PER_IP must be between 1 and 256.');
   const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
   const sessions=new Map(),rooms=new Map();let disposed=false;
   const send=(s,type,data={})=>{if(s?.ws?.readyState===WebSocket.OPEN&&s.ws.bufferedAmount<256000)s.ws.send(JSON.stringify({type,...data}));};
@@ -27,11 +30,10 @@ export function attachLobby(httpServer,{graceMs=30000}={}) {
   const upgrade=(request,socket,head)=>{
     if(request.url?.split('?')[0]!=='/socket')return;
     const origin=request.headers.origin;
-    let validOrigin=!origin;
-    try{validOrigin=validOrigin||new URL(origin).host===request.headers.host||origin===process.env.PUBLIC_ORIGIN;}catch{}
+    const validOrigin=acceptsOrigin(origin,request.headers.host,permitted);
     if(!validOrigin||wss.clients.size>=256){socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');socket.destroy();return;}
     const ip=request.socket.remoteAddress;
-    if([...wss.clients].filter(ws=>ws.ip===ip).length>=12){socket.destroy();return;}
+    if([...wss.clients].filter(ws=>ws.ip===ip).length>=maxConnectionsPerIP){socket.destroy();return;}
     wss.handleUpgrade(request,socket,head,ws=>{ws.ip=ip;wss.emit('connection',ws);});
   };
   httpServer.on('upgrade',upgrade);
@@ -50,6 +52,7 @@ export function attachLobby(httpServer,{graceMs=30000}={}) {
         const previous=typeof m.token==='string'?sessions.get(m.token):null;
         if(previous&&previous.ws===null&&previous.deadline>now){session=previous;}
         else{
+          if(m.token){ws.send(JSON.stringify({type:'resumeRejected',message:'Your online session has expired. Create a name to play again.'}));ws.close(1008,'Session expired');return;}
           const name=typeof m.name==='string'?m.name.trim():'';
           if(!validName(name)){ws.send(JSON.stringify({type:'error',message:'Use 3–20 letters, numbers, spaces, underscores or hyphens.'}));return;}
           if([...sessions.values()].some(s=>s.name.toLowerCase()===name.toLowerCase())){ws.send(JSON.stringify({type:'error',message:'That name is already in use. Try another.'}));return;}

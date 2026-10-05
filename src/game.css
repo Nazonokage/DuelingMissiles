@@ -92,14 +92,13 @@ body.intro #announce{display:none}
 
 /* Wind HUD indicator */
 #wind-hud{
-  position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);
-  left:50%;transform:translateX(-50%);
+  position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 66px);
   display:flex;flex-direction:column;align-items:center;gap:1px;
   pointer-events:none;z-index:6;opacity:.85;
   background:rgba(0,0,0,.45);color:#fff;border-radius:6px;padding:4px 10px;
   font-size:11px;letter-spacing:1px;min-width:52px;
 }
-#wind-arrow{font-size:22px;line-height:1;transition:transform .6s ease}
+#wind-arrow{font-size:22px;line-height:1;transition:none}
 #wind-label{font-size:10px;opacity:.75}
 body.intro #wind-hud{display:none}
 
@@ -205,3 +204,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:820px){.setup-layout{display:flex;flex-direction:column;gap:28px}.setup-intro{width:100%;padding-top:0;text-align:center}.match-settings{width:100%;max-width:580px;align-self:center}.setup-intro>.eyebrow{font-size:12px}#setup h1{font-size:clamp(44px,10vw,68px)}.hero-copy{font-size:18px}.briefing,.flight-line,.local-note{display:none}#online-lobby{max-width:528px;margin:24px auto 0;padding:24px;box-sizing:border-box}.extra-settings{grid-template-columns:1fr 1fr}.setup-footer{flex-direction:column;font-size:12px}}
 @media(max-width:480px){.brand-mark{font-size:11px}.local-badge{font-size:9px}.match-settings{padding:24px 18px}#online-lobby{padding:22px 18px}.player-settings,.extra-settings{grid-template-columns:1fr}.player-choice label{margin-top:8px}.setting-row{font-size:16px}.settings-note,.start-note{font-size:14px}.country-field select{font-size:17px!important}.room-row{align-items:stretch;flex-direction:column}.request-actions button{flex:1}#hud>#hint,#hud>#st{font-size:15px}#online-match{font-size:13px;padding:6px 8px;gap:8px}}
 @media(max-height:500px) and (min-width:600px){#hud>#hint{display:none}#hud>#st{font-size:14px;max-width:70vw}#pad{width:min(68vw,480px)}#pad button,#pad #fire{height:44px}#pad [data-a]{height:38px}body:has(#pad:not(.hide)) #hud{bottom:108px}}
+
+body.heat #reset-camera{display:none}
+body.heat #wind-hud{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+#heat{width:min(230px,calc(100vw - 96px));box-sizing:border-box;font-size:12px}
+.heat-key{font-size:11px;margin:6px 0}
+@media(max-height:450px){#heat{max-height:calc(100dvh - 88px);overflow:auto}}
+
+.heat-controls{display:flex;gap:6px;margin-top:8px}.heat-controls button{min-width:40px;min-height:40px;background:var(--paper);font:inherit}.heat-controls #heat-reset{flex:1}

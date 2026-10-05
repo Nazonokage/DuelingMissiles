@@ -1,15 +1,8 @@
-we got an issue, about the reload turn , that it inaccessible, maybe lets just buff it up to , have it withtout reload for the single tower left
-
-and Hmmm i should make the camera, to set on missed, I'll just redirect to the other turn than going back
-
-Completed — 2026-10-02
-
-- [x] The last surviving launcher fires every turn without reloading; any earlier reload lock clears when its turn starts.
-- [x] On a missed launcher shot, hold the camera on the landed missile, then move directly to the next player.
-- [x] Verified production build, 12 unit tests, and 39 browser checks across desktop and emulated touch portrait/landscape.
-
-Browser checks all reported passing; the runner stalled during cleanup and was interrupted afterward.
-
 
 ===
-lets continue where we left off and then, and lets add up a lines for the canon outlines , and lets scale it out properly for the design, and remove anything about Firebase , cuz we have web sockets init
+lets continue where we left off and then, and lets add up a lines for the canon outlines  for the analytics page, and lets scale it out properly for the design, 
+and remove anything about Firebase , cuz we have web sockets init
+and we should have make the selecting of missiles possible to select others by tapping or clicking but we should have a camera support swiping the screen
+lets add up a toggle settings to toggle off on the wobble
+lets improve the "wind" logic accuracy, and lets make it related to to show on the turret flags to know where the winds goes , an also, lets put the wind icon on the icon on the left instead of top middle, 
+lets also lessen the sensitivity of the missile while launched on air from the turret

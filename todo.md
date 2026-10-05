@@ -1,5 +1,14 @@
 # Dueling Missiles — implementation roadmap
 
+## Current checkpoint — 2026-10-05
+
+This checkpoint supersedes older architecture and completion notes below. The active app is Three.js + Vite with a Node WebSocket lobby and authoritative match simulation. No framework migration is required.
+
+- [x] Host approval, anonymous names, player search, ordered actions and reconnect support.
+- [x] Responsive analytics with recorded missile trails, player filters, closer framing, pan/zoom/reset and team cannon markers; tap/click missile selection alongside camera swipes.
+- [x] Shared wobble setting, gentler launcher steering, consistent wind acceleration and directional flags/HUD.
+- [ ] Physical phone tests, difficulty tuning, performance measurements and production deployment.
+
 ## Missile follow-up — 2026-10-01
 
 - [x] Closer missile-centered bird’s-eye view with independent drag orbit, pitch, wheel/pinch zoom, and reset during selection/recast.
@@ -17,8 +26,6 @@
 - [ ] Physical device audio/touch testing and measured performance baseline remain outstanding.
 - [ ] Fixed-step/seeded simulation and ordered takeover/steering/boost protocol remain outstanding; simulation still depends on render timing.
 - [ ] Country selection, cosmetic flags/palettes, impact camera, further module extraction, online services, and release remain outstanding.
-- [ ] Firebase Web app config and explicit Hosting project/site association are still needed. No remote, commit, push, or live deployment was performed.
-- [ ] Resolve/reassess 10 transitive audit findings in Firebase development tooling before release; runtime dependency audit is clean.
 
 ## Handoff checkpoint — 2026-10-01
 
@@ -27,11 +34,9 @@ Read this section first in the next chat. It supersedes earlier completion claim
 ### Verified on disk
 
 - The game remains a single file: `Missile Duel – Prototype 0.5.html`, with inline CSS/JavaScript and Three.js r128 loaded from a CDN.
-- Visible/browser titles were changed to Dueling Missiles. README, CHANGELOG, .gitignore, firebase.json and database.rules.json exist.
 - Mobile renderer defaults, particle caps, adaptive resolution, free camera drag, wheel zoom and keyboard reset have been added. Browser/device verification is outstanding.
 - Temporary music selectors and per-player HTML Audio pause/resume code exist. All track URLs are empty, so no BGM is delivered or audibly tested.
 - Local `.git` exists; no remote is configured. Nothing has been pushed or deployed by this chat.
-- No package.json, Vite app, separate CSS/JS entry files, Firebase client integration, backend resolver or audio assets were created. Earlier attempts to add them failed.
 - Anonymous Authentication is enabled according to the user's console screenshot; sign-in from the game has not been tested.
 
 ### Latest agreed scope
@@ -60,10 +65,8 @@ Read this section first in the next chat. It supersedes earlier completion claim
 2. Add Vite and split HTML/CSS/JS, then verify local gameplay and the production build.
 3. Implement country selection, flags/palettes and robust music lifecycle; add the hit camera and finish touch camera controls.
 4. Add measured mobile quality presets, reusable props/effects and accessibility/settings controls.
-5. Obtain the Firebase Web app config from Project Settings (API key, auth domain, project ID, app ID and database URL). The database URL alone is insufficient; never request or ship service-account credentials.
 6. Implement Auth, private room create/join, presence, reconnects, trusted turn/action resolution and tested database rules. Confirm billing requirements before provisioning the backend; the supplied screenshot showed Spark. Do not silently substitute client-authoritative play.
 7. Test local/online play, two phones, invalid commands, disconnections, audio, camera and performance; update documentation with evidence.
-8. Inspect the target GitHub repository/default branch, connect without overwriting remote work, build and verify Firebase Hosting, then commit/push the verified project as already requested.
 
 ### Access status
 
@@ -74,9 +77,6 @@ The ordinary command sandbox still reports a setup-refresh error. An explicitly 
 - Current prototype: `Missile Duel – Prototype 0.5.html`
 - Target title: **Dueling Missiles**
 - Target repository: [github.com/Nazonokage/DuelingMissiles](https://github.com/Nazonokage/DuelingMissiles)
-- Firebase database: `https://misileduels-default-rtdb.asia-southeast1.firebasedatabase.app/`
-- Firebase Authentication: **Anonymous provider enabled** ✅
-- First deployment target: Firebase Hosting
 - First online target: two-player, turn-based PvP with reconnect support
 
 ## Plan summary before implementation
@@ -87,16 +87,11 @@ The ordinary command sandbox still reports a setup-refresh error. An explicitly 
 4. Pause/resume each player’s music across turns without restarting tracks.
 5. Separate free camera movement from projectile aiming.
 6. Add optimized field props, memes, audio feedback, and bounded VFX.
-7. Add Firebase anonymous login, room creation/joining, presence, and synchronized turns.
 8. Validate shots and resolve canonical results authoritatively.
-9. Test on mobile, deploy to Firebase Hosting, then push the verified build to GitHub.
 
 ## Decisions already made
 
 - [x] Three.js for the battlefield and projectile presentation.
-- [x] Firebase Realtime Database for live match synchronization.
-- [x] Firebase Hosting for the web build.
-- [x] Anonymous Firebase Authentication is enabled.
 - [x] Cloud Functions or another trusted server path for authoritative PvP resolution.
 - [x] Camera state stays local; it is never synced frame by frame.
 - [x] Cosmetics and music stay separate from gameplay balance.
@@ -124,10 +119,6 @@ Not currently needed: enemy AI, monster rigs, inventory, isometric ARPG, and cam
 
 - [ ] Confirm GitHub repository access and default branch.
 - [ ] Rename browser title, visible title, filenames, and metadata to **Dueling Missiles**.
-- [ ] Add README with local run, Firebase setup, testing, and deployment instructions.
-- [ ] Add safe `.gitignore` for Firebase config, local secrets, build output, and editor files.
-- [ ] Create `firebase.json`, `.firebaserc`, Hosting public directory, and emulator configuration.
-- [ ] Keep Firebase client configuration in public app config only; never put admin credentials in the browser.
 
 ## Phase 1 — module split
 
@@ -316,10 +307,7 @@ function simulateShot(seed, power, angle, launcher) {
 ## Phase 8 — Hosting and GitHub release
 
 - [ ] Build production frontend with title **Dueling Missiles**.
-- [ ] Configure Firebase Hosting and emulator preview where practical.
-- [ ] Deploy the exact verified build to Firebase Hosting.
 - [ ] Test live load, first input, theme selection, one shot, responsiveness, and console health.
-- [ ] Record Firebase project/site ID and deployment evidence in README.
 - [ ] Commit the verified result with a changelog.
 - [ ] Push to [Nazonokage/DuelingMissiles](https://github.com/Nazonokage/DuelingMissiles) only after access, branch, and live smoke test are confirmed.
 
@@ -334,5 +322,4 @@ function simulateShot(seed, power, angle, launcher) {
 - Invalid, duplicate, stale, and out-of-turn commands are rejected.
 - Low-quality mode remains playable on a mid-range phone.
 - Hosting deployment and repository state are documented and reproducible.
-- **(Firebase removed — now runs on Next.js + WebSockets + chat)**
 

@@ -16,7 +16,7 @@
 <div id="bars"></div><button id="kb" title="show/hide on-screen keys">⌨</button>
 <div id="online-match" hidden><span id="online-status" role="status"></span><button id="leave-online">Leave match</button></div>
 <button id="dbtn" title="director view (F2)">🛠</button><button id="hbtn" title="show / hide guide (F1)">?</button><button id="sbtn" title="sound on/off (X)">🔊</button><button id="fbtn" title="heatmap analytics (H)">🔥</button>
-<div id="heat"><b>HEATMAP · bird's-eye</b><div id="hstat"></div><div class="lg"></div><div class="ll"><span>cold</span><span>hot</span></div><div id="hf"><button data-f="-1" class="on">All</button><button data-f="0">P1</button><button data-f="1">P2</button></div></div>
+<div id="heat"><b>FLIGHT ANALYTICS</b><div id="hstat"></div><p class="heat-key">Lines = recorded missile trails<br>Drag to pan · pinch / wheel to zoom</p><div class="lg"></div><div class="ll"><span>cold</span><span>hot</span></div><div class="heat-controls"><button id="heat-zoom-in" aria-label="Zoom analytics in">+</button><button id="heat-zoom-out" aria-label="Zoom analytics out">−</button><button id="heat-reset">Reset</button></div><div id="hf"><button data-f="-1" class="on">All</button><button data-f="0">P1</button><button data-f="1">P2</button></div></div>
 <div id="dir"><b>DIRECTOR VIEW</b><br>source → editor doc → draft → export (a proposal only, gameplay unchanged)<br><button id="cp" style="margin-top:6px;padding:3px 8px">Copy layout JSON</button></div><div id="tags"></div>
 <div id="hud"><div id="hint"></div><div id="st"></div><div id="pw"><i></i></div><div id="chips"></div></div>
 <div id="pad"><button data-k="l" style="grid-area:l">◀</button><button id="fire" style="grid-area:f">FIRE</button><button data-k="r" style="grid-area:r">▶</button>
@@ -57,6 +57,7 @@
         <details><summary>Camera, effects &amp; quality <span aria-hidden="true">+</span></summary>
           <div class="extra-settings">
             <label><input id="reduced-motion" type="checkbox"> Reduced motion</label>
+            <label><input id="wobble" type="checkbox" checked> Missile wobble</label>
             <label><input id="particles" type="checkbox" checked> Particles</label>
             <label><input id="shake" type="checkbox" checked> Camera shake</label>
             <label><input id="sfx" type="checkbox" checked> Sound effects</label>

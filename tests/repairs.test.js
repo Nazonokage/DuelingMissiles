@@ -67,3 +67,21 @@ test('bird camera uses independent zoom/pitch limits and reset defaults',()=>{
  s.handlers.wheel({deltaY:100000,preventDefault(){}});assert.equal(r.distance,240);
  c.reset();assert.deepEqual(r,defaults);c.dispose();
 });
+
+test('tap selection excludes swipes, pinches and cancelled gestures',()=>{
+ const s=new Surface(),r={...CAMERA_DEFAULTS};let taps=0;
+ createCameraControls(s,r,()=>true,()=>1000,{onTap:()=>taps++});
+ s.emit('pointerdown',1,100,850);s.emit('pointerup',1,103,853);assert.equal(taps,1);assert.equal(r.manual,false);
+ s.emit('pointerdown',1,100);s.emit('pointermove',1,150);s.emit('pointerup',1,150);assert.equal(taps,1);assert.equal(r.manual,true);
+ s.emit('pointerdown',1,100);s.emit('pointerdown',2,200);s.emit('pointerup',1,100);s.emit('pointerup',2,200);assert.equal(taps,1);
+ s.emit('pointerdown',1,100);s.emit('pointercancel',1,100);assert.equal(taps,1);
+});
+
+test('analytics gestures pan independently and pinch within zoom limits',()=>{
+ const s=new Surface(),defaults={x:0,z:0,distance:1,manual:false},r={...defaults};
+ const c=createCameraControls(s,r,()=>true,()=>1000,{defaults,distance:[.45,2.5],wheelScale:.001,onDrag:(dx,dy)=>{r.x-=dx;r.z-=dy}});
+ s.emit('pointerdown',1,100);s.emit('pointermove',1,130,110);assert.equal(r.x,-30);assert.equal(r.z,-10);
+ s.emit('pointerdown',2,230,110);s.emit('pointermove',2,330,110);assert.equal(r.distance,.5);
+ s.handlers.wheel({deltaY:100000,preventDefault(){}});assert.equal(r.distance,2.5);
+ c.reset();assert.deepEqual(r,defaults);
+});

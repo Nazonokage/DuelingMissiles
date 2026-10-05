@@ -1,10 +1,10 @@
 import { test,expect } from '@playwright/test';
 
 test('anonymous players search, request approval and play synchronized turns',async({page,context},info)=>{
- const guest=await context.newPage(),errors=[],snapshots=[[],[]];
+ const guest=await context.newPage(),errors=[],snapshots=[[],[]],matchConfigs=[];
  for(const [index,p] of [page,guest].entries()){
   p.on('pageerror',e=>errors.push(e.message));
-  p.on('websocket',ws=>ws.on('framereceived',frame=>{try{const m=JSON.parse(frame.payload);if(m.type==='snapshot')snapshots[index].push(m.snapshot);}catch{}}));
+  p.on('websocket',ws=>ws.on('framereceived',frame=>{try{const m=JSON.parse(frame.payload);if(m.type==='snapshot')snapshots[index].push(m.snapshot);if(m.type==='match')matchConfigs[index]=m.config;}catch{}}));
   await p.goto('/');
  }
  const suffix=String(Date.now()).slice(-6),hostName='Host-'+suffix,guestName='Guest-'+suffix;
@@ -14,6 +14,7 @@ test('anonymous players search, request approval and play synchronized turns',as
   await p.locator('#anonymous-name').fill(name);await p.locator('#create-name').click();
   await expect(p.locator('#lobby-actions')).toBeVisible();
  }
+ await page.locator('#setup summary').click();await page.locator('#wobble').uncheck();
  await page.locator('#host-match').click();await expect(page.locator('#hosting-room')).toBeVisible();
  await guest.locator('#search-matches').click();await guest.locator('#player-search').fill(hostName);
  const request=guest.locator('.room-row').filter({hasText:hostName}).getByRole('button',{name:'Request match'});
@@ -26,6 +27,7 @@ test('anonymous players search, request approval and play synchronized turns',as
  await page.locator('#join-requests').scrollIntoViewIfNeeded();await page.screenshot({path:`test-results/${info.project.name}-host-approval.png`});
  await page.locator('#join-requests').getByRole('button',{name:'Accept',exact:true}).click();
  await expect(page.locator('#setup')).toBeHidden();await expect(guest.locator('#setup')).toBeHidden();
+ expect(matchConfigs.map(c=>c.wobble)).toEqual([false,false]);
  await expect(page.locator('#online-status')).toContainText('Your turn');await expect(guest.locator('#online-status')).toContainText(hostName+'’s turn');
  await expect.poll(()=>snapshots[0].at(-1)?.state).toBe('aiming');
  await guest.keyboard.press('Space');expect(snapshots[1].at(-1).ball).toBeNull();

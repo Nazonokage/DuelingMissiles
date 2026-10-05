@@ -2,6 +2,31 @@
 
 All notable project changes are recorded here as implementation work progresses.
 
+## Noticeable airborne wind — 2026-10-05
+
+- Replaced the nearly imperceptible ±0.1 acceleration components with shared, seeded turn winds of 0.6–1.8 m/s² in any horizontal direction. Local play and the authoritative online server use the same generator.
+- Wind affects the ascent and descent independently of wobble. With no steering or wobble, three seconds of flight now produces 2.7–8.1 world units of downwind displacement; the aim guide uses the same acceleration.
+- Recalibrated light/moderate/strong labels and flag extension for the new range, and displayed numeric acceleration in the wind HUD.
+- Verification: all 29 unit tests and the production build passed. All six targeted desktop, touch-portrait and touch-landscape browser checks reported passing, covering airborne wind/aim-guide agreement and synchronized online matches. The runner again stalled during cleanup and was interrupted after the final case. Existing bundle-size warning remains.
+
+## Recorded missile trails and interactive analytics — 2026-10-05
+
+- Clarified the requested outlines as missile flight-path lines. Analytics now records actual launcher and recast positions, retains the latest 200 paths, and displays team-colored trails above the heatmap. All / P1 / P2 filters apply to trails as well as impacts.
+- Added online shot/recast start and landing identifiers so paths include their endpoints and recasts remain separate from the original launcher shot.
+- Brought the default analytics camera about 21% closer. Drag to pan, pinch or wheel to zoom, and use the on-screen +, − and Reset buttons. Analytics camera controls remain independent of aiming and missile selection.
+- Kept terrain visible from the elevated portrait view and sized cannon markers for small screens.
+- Verification: all 27 unit tests passed; production build passed with the existing bundle-size warning; all 15 focused desktop, touch-portrait and touch-landscape browser cases reported passing, including online matches. Reviewed desktop and portrait trail screenshots. The browser runner stalled during cleanup and was interrupted after its final case. Physical-device testing remains outstanding.
+
+## Missile controls, wind and analytics — 2026-10-05
+
+- Added team-colored cannon outlines above the heatmap, aligned to barrel direction and hidden for destroyed launchers. Fit the full arena to portrait and landscape views; kept the analytics panel and wind indicator responsive. Online events now populate shot and impact analytics.
+- Tap or click a friendly spent missile to select it, including switching directly between missiles. Added a movement threshold so swipes orbit and pinches zoom without accidentally selecting; cancelled gestures cannot select.
+- Added the Missile wobble setup switch for launcher and recast flight. Online hosts supply the setting to both players. Removed the extra frame-dependent velocity wobble that affected the climb, preserving seeded descent drift when enabled.
+- Reduced airborne launcher steering from 1.4 to 0.55 radians per second, retaining the one-side, one-hold rule.
+- Unified wind as horizontal acceleration, included it in the aim guide, and corrected integration across step sizes. Turret flags and the windsock point downwind; the left-hand HUD arrow follows the current camera view.
+- Removed the obsolete database provider dependencies, configuration, emulator tests and documentation references. Updated run/release instructions for the existing Node WebSocket server and retained the original request in toaddup.md.
+- Verification: unit tests and production build passed with the existing bundle-size warning. The 57-case browser run reported 54 passes and three obsolete fixed-height assertions; those assertions were updated for responsive framing and all 12 focused rerun cases passed. The runner stalled during cleanup and was interrupted after its final case. Physical-device testing remains outstanding.
+
 ## Sky lobby, stencil type and camera transitions — 2026-10-02
 
 - Redesigned pre-match settings using the supplied Blue Cloudy Clean Modern direction: a sky gradient, soft atmospheric light, restrained framing, a bright settings panel, and a prominent start button. Settings remain scrollable on small screens and retain their existing behavior.
@@ -52,12 +77,6 @@ All notable project changes are recorded here as implementation work progresses.
 - Corrected two truncated music paths and guarded playback against late promises, repeated failed tracks, and restarting after match end.
 - Updated obsolete music tests for the current shuffled jukebox and added input regression coverage.
 
-## Emulator log cleanup — 2026-10-01
-
-- Added isolated firebase.test.json with an explicit demo database instance to resolve the CLI/test-library namespace mismatch without disabling single-project checks.
-- Moved rules tests to loopback port 9001 to avoid interrupting an existing process on 9000. Tests consume the CLI-provided emulator endpoint.
-- Rules tests passed; confirmed no multiple-project namespace warning in the new emulator log. Mock-token and intentional permission-denied messages remain expected.
-
 ## Apex-triggered launcher wobble — 2026-10-01
 
 - Launcher wobble now starts at the trajectory apex, calculated from initial vertical speed and gravity, instead of a fixed 1.2-second delay. The climb stays stable at every power/elevation; drift grows during descent.
@@ -87,13 +106,10 @@ All notable project changes are recorded here as implementation work progresses.
 - Added pointer-ID tracking, pinch, touch reset, bounded/team-relative orbit, smooth camera position/look targets, and capture cleanup. Replaced the exact-zero bird-view test with a transition threshold so free orbit becomes available again.
 - Guarded gameplay keys before match setup and fixed selected launcher chips inheriting fixed positioning.
 - Verification: production build and four Node regression tests passed; desktop and emulated portrait/landscape shot/turn smoke tests passed without page errors. Real generated-tone playback tests also passed in all three viewport setups (six browser tests total). No physical-device, online, or live-site verification is claimed.
-- Limitations: no supplied music recordings, country system, impact camera, fixed-step simulation, trusted backend, Firebase app config, or deployment. The historical HTML remains unchanged. Build chunk-size warning and 10 Firebase dev-tool transitive audit findings remain; runtime audit is clean.
 
 ## Unreleased — roadmap consolidation
 
 - Consolidated the project direction into [todo.md](todo.md).
-- Recorded the Firebase Realtime Database endpoint and confirmed anonymous authentication is enabled.
-- Chose Firebase Hosting for the first deployment target.
 - Defined the target repository as `Nazonokage/DuelingMissiles`.
 - Documented the planned mobile camera, music-theme, field-polish, PvP, security, QA, and release work.
 
@@ -109,12 +125,10 @@ All notable project changes are recorded here as implementation work progresses.
 - Kept camera orbit independent from projectile shot aim.
 - Added camera reset with the `C` key and pointer/touch drag support in the upper playfield.
 
-## Unreleased — themes and Firebase foundation
 
 - Added pre-match Player 1 and Player 2 music-theme selectors.
 - Added a persistent music manager that pauses and resumes each player’s saved playback position.
 - Kept theme URLs empty until licensed arrangements are added to `public/audio`.
-- Added initial `firebase.json` Hosting/Database configuration.
 - Added a restrictive `database.rules.json` baseline for authenticated match access, player slots, and one-time commands.
 
 ## 0.5 — existing prototype baseline
@@ -140,10 +154,7 @@ All notable project changes are recorded here as implementation work progresses.
 - Kept camera movement separate from projectile aim.
 - Added Player 1/Player 2 music selectors.
 - Added persistent music pause/resume behavior.
-- Added Firebase Hosting configuration.
 - Added initial Realtime Database security rules.
-- Confirmed Firebase database URL:
-  https://misileduels-default-rtdb.asia-southeast1.firebasedatabase.app/
 - Confirmed anonymous authentication is enabled.
 - Node.js and Git are installed.
 - Local Git repository was initialized.
@@ -159,7 +170,6 @@ All notable project changes are recorded here as implementation work progresses.
    - js/audio.js
    - js/countries.js
    - js/game-state.js
-   - js/firebase-pvp.js
 3. Replace temporary music selectors with country selection.
 4. Make each country control:
    - Flag
@@ -181,11 +191,9 @@ All notable project changes are recorded here as implementation work progresses.
    - Add bounded shake and hit-stop.
    - Return smoothly to the active launcher.
    - Support reduced-motion mode.
-8. Add Firebase anonymous sign-in.
 9. Add room creation and room joining.
 10. Add player presence and disconnect handling.
 11. Add synchronized turns.
-12. Send only committed shot commands to Firebase.
 13. Keep camera movement and particles local.
 14. Add authoritative shot validation/resolution.
 15. Add reconnect grace period.
@@ -199,7 +207,6 @@ All notable project changes are recorded here as implementation work progresses.
    - Muted audio
    - Background/resume
    - Two-device PvP
-19. Configure Firebase Hosting deployment.
 20. Test the live deployment.
 21. Connect the project to:
    https://github.com/Nazonokage/DuelingMissiles
@@ -211,6 +218,5 @@ All notable project changes are recorded here as implementation work progresses.
 - Do not copy Girls und Panzer characters, logos, uniforms, dialogue, or assets.
 - Keep flags, countries, and music cosmetic only.
 - Do not use extremist symbols as casual or celebratory cosmetics.
-- Do not place Firebase admin credentials in the browser.
 - Do not sync camera movement frame-by-frame.
 - Do not mark tasks complete until they are actually implemented and tested.
