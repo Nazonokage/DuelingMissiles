@@ -48,6 +48,37 @@ npm run test:browser
 
 Browser tests use installed Microsoft Edge, headlessly, in desktop and emulated touch portrait/landscape viewports. Screenshots are written to ignored `test-results/`. Tests cover setup, pre-start input, camera reset, sound toggle, shot/turn progression, and playback with generated audio. These checks do not replace testing on two physical phones or listening on real devices.
 
+## Environment settings
+
+Local configuration lives in the git-ignored `.env`; `.env.example` lists supported settings. Vite reads it for development/build, and `npm start` loads it for the Node server. Render uses the environment settings in `render.yaml`; the local file is not uploaded.
+
+`VITE_GAME_SERVER_URL=/socket` connects to the same service as the page and automatically uses secure WebSockets on HTTPS. Leave `PUBLIC_ORIGINS` empty for this setup; only add exact comma-separated origins if hosting the frontend separately. Never put credentials in variables prefixed with `VITE_`. Render supplies `PORT`; the server binds to `0.0.0.0`.
+
+## Deploy on Render
+
+Use one Docker **Web Service** running Node 24, serving both the built frontend and `/socket`. No external database is required. The included `render.yaml` selects the free playtest plan in Singapore, one instance, using the root Dockerfile:
+
+- Build: multi-stage Docker build; installs build dependencies and compiles the frontend.
+- Start: `node server/start.js` as the unprivileged `node` user, with production dependencies only.
+- Health check: `/healthz`
+
+Push this revision to your repository, then select **New > Blueprint** in the [Render dashboard](https://dashboard.render.com/) and connect that repository. Render reads `render.yaml` and builds the Docker image. For manual Web Service setup, select **Docker** and use `./Dockerfile`; leave the Docker command override empty. After deployment, open the assigned service URL and verify `/healthz` returns `ok: true`. Test host approval, firing, and reconnecting from two browsers or devices. No live deployment has been performed yet.
+
+Keep this service at **one instance**: rooms and anonymous sessions live in process memory. A brief player disconnect pauses the match and can reconnect within 30 seconds, provided the server has not restarted. Restarts, redeployments, and instance replacement reset all rooms; players must create a new match. Shared storage would be required before scaling across instances. See [Render WebSockets](https://render.com/docs/websocket).
+
+The free plan is for playtests: Render spins down idle services after 15 minutes without inbound traffic, and waking one can take about a minute. Usage limits also apply; review [Render free-service limits](https://render.com/docs/free). An always-on paid instance avoids idle spin-down, but this implementation still loses rooms on restart.
+
+### Local Docker verification
+
+With Docker installed, run:
+
+```sh
+docker build -t dueling-missiles .
+docker run --rm -p 3000:3000 -e MAX_CONNECTIONS_PER_IP=256 dueling-missiles
+```
+
+Open http://localhost:3000 and check http://localhost:3000/healthz. The same port serves HTTP and WebSockets. Override `PORT` and the port mapping together if needed. Local environment files are excluded from the image; pass optional server settings with `-e`. The public socket address defaults to `/socket`; a separate frontend requires rebuilding with `--build-arg VITE_GAME_SERVER_URL=...`. See [Docker on Render](https://render.com/docs/docker).
+
 ## Online play and release status
 
 Development and preview include the WebSocket lobby automatically. For the production server:
@@ -61,6 +92,6 @@ The server serves only `dist` and listens on port 3000 (override with `PORT` and
 
 The left wind indicator points downwind relative to your current camera. Turret flags and the windsock point in the same world direction. Flight analytics starts with a closer arena view and draws recorded missile trails, including launcher shots and recasts, over the heat layer. Drag to pan, pinch or scroll to zoom, or use the +, − and Reset buttons. All / P1 / P2 filters affect trails and impacts. The latest 200 trails observed during the session are retained, and team-colored cannon outlines mark surviving launchers.
 
-No live deployment is claimed. Production hosting must support a persistent Node process and WebSocket upgrades. The build may report a large JavaScript chunk; physical-device performance and human difficulty tuning remain outstanding.
+No live deployment is claimed. Render runs the persistent Node server described above. The build reports a large JavaScript chunk; physical-device performance and human difficulty tuning remain outstanding.
 
 See [todo.md](todo.md) for remaining work and [CHANGELOG.md](CHANGELOG.md) for implementation evidence.

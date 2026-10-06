@@ -1,6 +1,6 @@
 # Dueling Missiles — implementation roadmap
 
-## Current checkpoint — 2026-10-05
+## Current checkpoint — 2026-10-06
 
 This checkpoint supersedes older architecture and completion notes below. The active app is Three.js + Vite with a Node WebSocket lobby and authoritative match simulation. No framework migration is required.
 
@@ -206,93 +206,13 @@ shotAim = { yaw, pitch, committedAxis, power }
 - [ ] Provide fictional public-matchmaking names and a disable-cosmetics option.
 - [ ] Add a report path for offensive cosmetics before public matchmaking.
 
-## Phase 6 — Next.js WebSocket PvP
+## Phase 6 — Render WebSocket PvP
 
-### Match lifecycle
-
-1. Player loads `/play` page (Next.js).
-2. WebSocket connects on page load.
-3. Player creates or joins a short room code (random matchmaking button optional).
-4. Host creates rules, seed, theme IDs, and player slots.
-5. Both clients subscribe to match state.
-6. Active player submits one committed shot via socket.
-7. Server runs deterministic simulation (seeded) and broadcasts result.
-8. Music pauses and next theme resumes.
-9. New turn begins, or match finishes.
-
-### WebSocket route handler (`app/api/ws/route.ts`)
-
-```ts
-import { experimental_upgradeWebSocket } from '@vercel/functions';
-
-export const dynamic = 'force-dynamic';
-
-export async function GET(request: Request) {
-  const upgrade = experimental_upgradeWebSocket(request);
-  if (!upgrade) return new Response('Upgrade failed', { status: 500 });
-
-  const { socket, response } = upgrade;
-
-  let roomCode = '';
-  let playerId = '';
-  let seed = 0;
-
-  socket.on('connect', () => {
-    console.log('Player connected:', socket.id);
-    playerId = socket.id;
-  });
-
-  socket.on('create-or-join', ({ seed: incomingSeed }) => {
-    seed = incomingSeed || Math.random();
-    roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    globalThis.rooms = globalThis.rooms || new Map();
-    globalThis.rooms.set(roomCode, { players: [playerId], seed });
-    socket.join(roomCode);
-    socket.emit('room-created', { code: roomCode, seed });
-  });
-
-  socket.on('join-room', ({ code }) => {
-    const room = globalThis.rooms.get(code);
-    if (!room || room.players.length >= 2) return;
-    room.players.push(playerId);
-    socket.join(code);
-    socket.emit('player-joined');
-  });
-
-  socket.on('shot', ({ power, angle, launcher }) => {
-    const room = globalThis.rooms.get(roomCode);
-    if (!room) return;
-    const result = simulateShot(room.seed, power, angle, launcher); // your exact FixedStepper
-    socket.to(roomCode).emit('shot-result', { ...result, turn: room.state.turn });
-  });
-
-  socket.on('chat-message', (message) => {
-    socket.to(roomCode).emit('chat-message', { id: playerId, text: message });
-  });
-
-  socket.on('disconnect', () => {
-    // cleanup
-  });
-}
-
-function simulateShot(seed, power, angle, launcher) {
-  // Paste your src/game/simulation.js FixedStepper + seededRandom here
-  // Returns { hit, damage, chain, etc. }
-}
-```
-
-### Realtime features
-
-- In-memory rooms (Vercel KV later for scale).
-- Random matchmaking button (creates room + auto-joins).
-- Full text chat with last-50-messages replay on join.
-- Only committed shots are sent (no camera/transforms synced).
-- Deterministic server simulation — no client trust.
-- Reconnect grace + 30-second timeout.
-- Room expiry after 30 minutes.
-
-- [ ] Test on two phones, disconnects, stale commands, duplicate shots.
-- [ ] Deploy to Vercel (one-click, free).
+- [x] Persistent Node server serves the frontend and authoritative WebSocket matches.
+- [x] Anonymous names, host approval, ordered controls, pause and reconnect support.
+- [x] Render Blueprint with one instance and /healthz check.
+- [ ] Deploy the current revision to Render and verify two devices, stale controls and reconnects.
+- [ ] Add shared storage before attempting multiple server instances or restart recovery.
 
 ## Phase 7 — mobile QA
 

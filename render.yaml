@@ -1,0 +1,20 @@
+# One process owns all rooms. Do not enable autoscaling without shared storage.
+services:
+  - type: web
+    name: dueling-missiles
+    runtime: docker
+    plan: free
+    region: singapore
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: VITE_GAME_SERVER_URL
+        value: /socket
+      - key: MAX_CONNECTIONS_PER_IP
+        value: "256"

@@ -80,8 +80,9 @@ export class OnlineLobby {
       }else if(m.type==='error'){this.status(m.message);$('create-name').disabled=false;}
     };
     ws.onerror=()=>{if(ws===this.ws)this.status('The online service is unavailable. Retry shortly, or play on this device.');};
-    ws.onclose=()=>{
+    ws.onclose=event=>{
       clearTimeout(timeout);if(ws!==this.ws)return;this.connected=false;$('create-name').disabled=false;
+      if(event.code===4001){this.stopped=true;this.forgetSession();this.mode='identity';this.status('This session was opened in another connection. Choose a new name to play here.');if(this.active){this.active=false;this.onClosed('Session moved to another connection.');}}
       if(this.stopped){this.render();return;}
       if(this.active){this.paused=true;this.onSnapshot(null,true);$('online-status').textContent='Connection lost. Reconnecting…';}
       this.status('Disconnected. Reconnecting…');this.render();

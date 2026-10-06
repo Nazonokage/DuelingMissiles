@@ -2,6 +2,16 @@
 
 All notable project changes are recorded here as implementation work progresses.
 
+## Render WebSocket deployment — 2026-10-06
+
+- Replaced the previous hosting configuration with a single Render Docker web service running Node 24, a Singapore free-playtest Blueprint, same-origin sockets and an HTTP health check.
+- Removed the unused serverless/shared-datastore backend, its dependency and tests, obsolete provider configuration and references, and the unused duplicate physics module. Kept the persistent authoritative server, host approval and reconnect behavior.
+- Simplified local environment files to the active server settings; no database credentials are required.
+- Documented single-instance operation, restart-related match loss and free-service idle behavior. Earlier notes for the retired backend were removed to avoid conflicting setup instructions.
+- Verification: all 29 retained tests and the production build passed. A production-entry-point smoke check verified the frontend, health endpoint, same-origin WebSocket identity and private-file isolation. The existing bundle-size warning remains.
+- Aligned both Docker stages on Node 24, explicitly included build dependencies, limited copied build inputs, and connected the Blueprint to the Dockerfile. The runtime uses production dependencies and an unprivileged user.
+- Docker is unavailable on the local machine; actual image build/run verification, deployment and physical-device verification remain pending.
+
 ## Noticeable airborne wind — 2026-10-05
 
 - Replaced the nearly imperceptible ±0.1 acceleration components with shared, seeded turn winds of 0.6–1.8 m/s² in any horizontal direction. Local play and the authoritative online server use the same generator.
