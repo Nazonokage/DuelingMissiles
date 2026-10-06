@@ -74,10 +74,10 @@ With Docker installed, run:
 
 ```sh
 docker build -t dueling-missiles .
-docker run --rm -p 3000:3000 -e MAX_CONNECTIONS_PER_IP=256 dueling-missiles
+docker run --rm -p 31847:31847 -e MAX_CONNECTIONS_PER_IP=256 dueling-missiles
 ```
 
-Open http://localhost:3000 and check http://localhost:3000/healthz. The same port serves HTTP and WebSockets. Override `PORT` and the port mapping together if needed. Local environment files are excluded from the image; pass optional server settings with `-e`. The public socket address defaults to `/socket`; a separate frontend requires rebuilding with `--build-arg VITE_GAME_SERVER_URL=...`. See [Docker on Render](https://render.com/docs/docker).
+Open http://localhost:31847 and check http://localhost:31847/healthz. The same port serves HTTP and WebSockets. Override `PORT` and the port mapping together if needed. Local environment files are excluded from the image; pass optional server settings with `-e`. The public socket address defaults to `/socket`; a separate frontend requires rebuilding with `--build-arg VITE_GAME_SERVER_URL=...`. See [Docker on Render](https://render.com/docs/docker).
 
 ## Online play and release status
 
@@ -88,7 +88,7 @@ npm run build
 npm start
 ```
 
-The server serves only `dist` and listens on port 3000 (override with `PORT` and `HOST`). Choose an anonymous name, host a match, or search for a host and request to join. The host approves requests and supplies match settings, including wobble. The server validates turn ownership and ordered controls; disconnected matches pause and can resume using the same browser session token. Rooms are held in memory and disappear on server restart.
+The server serves only `dist` and listens on port 31847 (override with `PORT` and `HOST`). Choose an anonymous name, host a match, or search for a host and request to join. The host approves requests and supplies match settings, including wobble. The server validates turn ownership and ordered controls; disconnected matches pause and can resume using the same browser session token. Rooms are held in memory and disappear on server restart.
 
 The left wind indicator points downwind relative to your current camera. Turret flags and the windsock point in the same world direction. Flight analytics starts with a closer arena view and draws recorded missile trails, including launcher shots and recasts, over the heat layer. Drag to pan, pinch or scroll to zoom, or use the +, − and Reset buttons. All / P1 / P2 filters affect trails and impacts. The latest 200 trails observed during the session are retained, and team-colored cannon outlines mark surviving launchers.
 

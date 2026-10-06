@@ -10,7 +10,8 @@ All notable project changes are recorded here as implementation work progresses.
 - Documented single-instance operation, restart-related match loss and free-service idle behavior. Earlier notes for the retired backend were removed to avoid conflicting setup instructions.
 - Verification: all 29 retained tests and the production build passed. A production-entry-point smoke check verified the frontend, health endpoint, same-origin WebSocket identity and private-file isolation. The existing bundle-size warning remains.
 - Aligned both Docker stages on Node 24, explicitly included build dependencies, limited copied build inputs, and connected the Blueprint to the Dockerfile. The runtime uses production dependencies and an unprivileged user.
-- Docker is unavailable on the local machine; actual image build/run verification, deployment and physical-device verification remain pending.
+- Built the image successfully with Docker Desktop and verified a healthy unprivileged container on localhost:31847. Live container checks passed for frontend assets, private-file isolation, two-player host approval, firing, disconnect pause, token reconnect and room cleanup.
+- Changed the Docker and standalone default port to 31847; Render can still override PORT. Hosted deployment and physical-device verification remain pending.
 
 ## Noticeable airborne wind — 2026-10-05
 
