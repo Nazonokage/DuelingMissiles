@@ -5,7 +5,7 @@ test('anonymous players search, request approval and play synchronized turns',as
  for(const [index,p] of [page,guest].entries()){
   p.on('pageerror',e=>errors.push(e.message));
   p.on('websocket',ws=>ws.on('framereceived',frame=>{try{const m=JSON.parse(frame.payload);if(m.type==='snapshot')snapshots[index].push(m.snapshot);if(m.type==='match')matchConfigs[index]=m.config;}catch{}}));
-  await p.goto('/');
+  await p.goto('/');await p.locator('#online-mode').click();
  }
  const suffix=String(Date.now()).slice(-6),hostName='Host-'+suffix,guestName='Guest-'+suffix;
  await expect(page.locator('[data-k=theme][data-v=blueprint]')).toHaveAttribute('aria-pressed','true');
@@ -14,12 +14,16 @@ test('anonymous players search, request approval and play synchronized turns',as
   await p.locator('#anonymous-name').fill(name);await p.locator('#create-name').click();
   await expect(p.locator('#lobby-actions')).toBeVisible();
  }
- await page.locator('#setup summary').click();await page.locator('#wobble').uncheck();
- await page.locator('#host-match').click();await expect(page.locator('#hosting-room')).toBeVisible();
+ await page.locator('#host-match').click();await page.locator('#setup summary').click();await page.locator('#wobble').uncheck();
+ await page.locator('#go').click();await expect(page.locator('#hosting-room')).toBeVisible();
+ await expect(page.locator('#lobby-loader')).toBeVisible();
+ await page.screenshot({path:`test-results/${info.project.name}-waiting-cubes.png`});
  await guest.locator('#search-matches').click();await guest.locator('#player-search').fill(hostName);
  const request=guest.locator('.room-row').filter({hasText:hostName}).getByRole('button',{name:'Request match'});
  await request.click();await expect(guest.locator('#lobby-status')).toContainText('Waiting for '+hostName);
+ await expect(guest.locator('#lobby-loader')).toBeVisible();
  await expect(page.locator('#join-requests')).toContainText(guestName);
+ await expect(page.locator('#lobby-loader')).toBeHidden();
  await expect(guest.locator('#setup')).toBeVisible();await expect(page.locator('#setup')).toBeVisible();
  await page.locator('#join-requests').getByRole('button',{name:'Decline'}).click();
  await expect(guest.locator('#lobby-status')).toContainText('declined');
@@ -50,7 +54,7 @@ test('anonymous players search, request approval and play synchronized turns',as
 });
 
 test('names are required and the lobby does not accept invalid display names',async({page})=>{
- await page.goto('/');await page.locator('#anonymous-name').fill('');await page.locator('#create-name').click();
+ await page.goto('/');await page.locator('#online-mode').click();await page.locator('#anonymous-name').fill('');await page.locator('#create-name').click();
  await expect(page.locator('#lobby-status')).toContainText('3–20');await expect(page.locator('#lobby-actions')).toBeHidden();
  await page.locator('#random-name').click();await expect(page.locator('#anonymous-name')).toHaveValue(/^[A-Za-z]+-\d{4}$/);
 });

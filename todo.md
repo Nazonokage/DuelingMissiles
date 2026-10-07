@@ -1,4 +1,67 @@
-# Dueling Missiles — implementation roadmap
+# In-game chat — implementation plan
+
+Draft for review · 2026-10-07. Planning only; chat is not implemented in this release.
+
+## Proposed first version
+
+A private text conversation between the two players in an online match. Keep chat available during both players’ turns and on the match-end screen until someone leaves. Offline play does not show chat. Lobby chat, public channels, voice, attachments, accounts and persistent history are outside the first version.
+
+## Player experience
+
+- [ ] Add a compact Chat button with an unread count to the online HUD, positioned clear of aiming, FIRE, camera and turn controls.
+- [ ] Desktop: a collapsible side panel. Phone: a bottom sheet that fits above the software keyboard and respects safe areas.
+- [ ] Show sender name, message text and a lightweight timestamp. Distinguish your messages with labels as well as color.
+- [ ] Provide a labelled input, 240-character limit and Send button. Enter sends; Escape closes and restores focus to Chat. Do not submit while an IME composition is active.
+- [ ] Keep new messages from stealing focus. Auto-scroll only when already at the bottom; otherwise show a New messages indicator.
+- [ ] Allow Hide chat / mute incoming notifications for this match. Default to a visual unread badge without sound.
+- [ ] Show pending, sent and failed states. Disable sending while disconnected, retaining the draft for manual retry.
+
+## Input and gameplay isolation
+
+- [ ] Put chat in a dedicated UI module rather than growing the game loop.
+- [ ] Suspend gameplay keyboard shortcuts and release held controls while typing or opening the chat panel, so Space cannot fire and A/D cannot aim.
+- [ ] Stop panel pointer/wheel events reaching camera gestures. Clear active gestures when opening the mobile sheet.
+- [ ] Keep simulation and turn clocks running. Make the active-turn indicator visible while chat is open.
+
+## Server and protocol
+
+- [ ] Reuse the authenticated WebSocket session in src/online/lobby.js and server/lobby.js.
+- [ ] Accept a separate chat message type containing clientMessageId and text. Derive sender and room from the server session; never trust client-supplied names, seats or room membership.
+- [ ] Permit only the two members of an active or completed match whose room still exists. Reject outsiders, pending joiners and offline users.
+- [ ] Validate type and length, trim empty input, reject unsupported control characters, and cap payload bytes. Render text with textContent, without HTML or clickable links.
+- [ ] Apply a separate chat rate limit (proposed: burst of 3, refill 1 message every 2 seconds). Return a clear retry response without consuming gameplay action sequence numbers.
+- [ ] Assign a server ID and timestamp, acknowledge the sender and broadcast only to the opponent. Bound clientMessageId length and deduplicate retries.
+- [ ] Keep the latest 50 messages per room in memory. On reconnect, send this bounded history and reconcile message IDs without duplicates.
+- [ ] Clear history when the room is deleted. Do not persist messages to disk or include text in routine logs. Reuse existing socket payload/backpressure limits.
+
+## Implementation order
+
+1. [ ] Finalize UX and the open decisions below.
+2. [ ] Add server validation, membership checks, rate limiting and bounded history with socket tests.
+3. [ ] Add the chat module, panel and composer; integrate input isolation and acknowledgements.
+4. [ ] Add unread, reconnect, mute and match-end behavior.
+5. [ ] Verify desktop and phone layouts, accessibility and two-player gameplay before release.
+
+## Acceptance checks
+
+- [ ] Two players exchange ordered text during either turn; no messages cross room boundaries.
+- [ ] Typing Space, A/D, arrows and Enter never triggers gameplay. Closing chat restores normal controls without a stuck charge.
+- [ ] Empty, oversized, malformed and rapid messages fail safely; HTML-looking input remains literal text.
+- [ ] Disconnect/reconnect preserves bounded history and the draft without duplicate delivery.
+- [ ] Unread counts, mute, scroll position and focus behave correctly; screen readers receive polite updates without repeating the history.
+- [ ] Test portrait/landscape phones, software keyboard resizing and reduced motion. No panel obscures the only way to close chat.
+- [ ] Existing match, host approval, firing and reconnect tests continue to pass.
+
+## Decisions to review
+
+- Is chat during matches only enough, or should accepted players also get a pre-match room chat later?
+- Are 240 characters and 50 retained messages the right limits?
+- Should quick messages such as Good luck / Nice shot be added after plain text works?
+- Is a visual badge sufficient, or should optional notification sound be added later?
+
+---
+
+# Previous implementation roadmap (preserved)
 
 ## Current checkpoint — 2026-10-06
 

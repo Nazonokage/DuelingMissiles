@@ -7,7 +7,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export const validName=name=>typeof name==='string'&&/^[A-Za-z0-9][A-Za-z0-9 _-]{2,19}$/.test(name);
 export function matchConfig(input={}) {
   const countries=['italy','france','finland','uk','germany','russia','japan'];
-  return {wobble:input.wobble!==false,n:input.n===7?7:5,hp:[1,2,3].includes(input.hp)?input.hp:2,
+  return {wobble:input.wobble===true,n:input.n===7?7:5,hp:[1,2,3].includes(input.hp)?input.hp:2,
     theme:['paper','blueprint','night'].includes(input.theme)?input.theme:'blueprint',
     p1country:countries.includes(input.p1country)?input.p1country:'italy',
     p2country:countries.includes(input.p2country)?input.p2country:'france'};

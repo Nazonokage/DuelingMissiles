@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 test('setup, camera, shot, turn switch and sound toggle',async({page},info)=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('/');await expect(page.locator('#go')).toBeVisible();
+ await page.goto('/');await page.locator('#offline-mode').click();await expect(page.locator('#go')).toBeVisible();
  await page.keyboard.press('Space');await page.keyboard.press('m');
 
  await page.locator('#go').click();await expect(page.locator('#setup')).toBeHidden();
@@ -28,7 +28,7 @@ test('real jukebox audio pauses and resumes',async({page})=>{
  for(let i=0;i<samples;i++)wav.writeInt16LE(Math.round(Math.sin(i*2*Math.PI*220/rate)*1000),44+i*2);
  await page.route('**/test-tone.wav',r=>r.fulfill({contentType:'audio/wav',body:wav}));
  await page.route('**/test-music.js',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync('src/audio/music-manager.js','utf8')}));
- await page.goto('/');await page.locator('#go').click();
+ await page.goto('/');await page.locator('#offline-mode').click();await page.locator('#go').click();
  await page.evaluate(async()=>{const {MusicManager}=await import('/test-music.js');window.testMusic=new MusicManager({test:{url:'/test-tone.wav'}},()=>['test','test']);window.testMusic.refresh();window.testMusic.setTurn(0)});
  await expect.poll(()=>page.evaluate(()=>testMusic.audio.currentTime)).toBeGreaterThan(.15);
  const position=await page.evaluate(()=>{testMusic.setTurn(1);return testMusic.audio.currentTime});
@@ -42,7 +42,7 @@ test('real jukebox audio pauses and resumes',async({page})=>{
 });
 
 test('spent missile camera can orbit, zoom and reset before recast launch and boost',async({page},info)=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#go').click();
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#offline-mode').click();await page.locator('#go').click();
  for(const player of [2,1]){
    await page.waitForTimeout(1800);await page.keyboard.down('Space');await page.waitForTimeout(250);await page.keyboard.up('Space');
    await expect(page.locator('#label')).toHaveText(`PLAYER ${player}`,{timeout:30000});
@@ -61,7 +61,7 @@ test('spent missile camera can orbit, zoom and reset before recast launch and bo
 
 test('screen holds capture drags, cancel safely, and keyboard works after launcher clicks',async({page},info)=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('/');await page.locator('#go').click();await page.waitForTimeout(1600);
+ await page.goto('/');await page.locator('#offline-mode').click();await page.locator('#go').click();await page.waitForTimeout(1600);
  if(!await page.locator('#fire').isVisible())await page.locator('#kb').click();
  await page.locator('#chips button').first().click();
  await page.keyboard.press('e');await expect(page.locator('#chips button.sel')).toHaveText('2');

@@ -1,5 +1,13 @@
 # Changelog
 
+## Welcome flow and home animation — 2026-10-07
+
+- Simplified the welcome screen to Offline and Online with shared setup dialogs, anonymous identity, host configuration, searchable rooms and approval flow.
+- Made wobble opt-in on both client and server. Added responsive dialog navigation and room cleanup on close.
+- Added floating home typography, moving cubes credited to Nawsome, contextual waiting indicators and icon feedback. Home motion has an independent saved on/off switch; the switch is visually compact with a larger invisible touch area.
+- Added an in-game chat proposal to todo.md, preserving the previous roadmap; no chat implementation is included.
+- Verification: production build, unit tests, desktop/mobile setup and online flow checks; live preview verified motion under its reduced-motion setting. The existing bundle-size warning remains.
+
 All notable project changes are recorded here as implementation work progresses.
 
 ## Render WebSocket deployment — 2026-10-06

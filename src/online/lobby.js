@@ -12,7 +12,11 @@ export class OnlineLobby {
     let saved;try{saved=JSON.parse(sessionStorage.getItem(this.storageKey));}catch{}
     if(saved&&typeof saved.token==='string'&&typeof saved.name==='string'){this.token=saved.token;$('anonymous-name').value=saved.name;}
     else $('anonymous-name').value=randomName();
-    $('random-name').onclick=()=>{$('anonymous-name').value=randomName();};
+    let shuffleTurn=0;
+    $('random-name').onclick=event=>{
+      $('anonymous-name').value=randomName();
+      if(event.detail)$('random-name').style.setProperty('--shuffle-turn',`${++shuffleTurn*180}deg`);
+    };
     $('create-name').onclick=()=>this.connect();
     $('anonymous-name').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();this.connect();}};
     $('host-match').onclick=()=>this.send({type:'host',config:this.config()});
@@ -27,16 +31,17 @@ export class OnlineLobby {
   }
   forgetSession(){this.token=null;try{sessionStorage.removeItem(this.storageKey);}catch{}}
   rememberSession(name){try{sessionStorage.setItem(this.storageKey,JSON.stringify({name,token:this.token}));}catch{}}
-  status(message){$('lobby-status').textContent=message;}
+  waiting(active){$('lobby-loader').hidden=!active;}
+  status(message,waiting=false){$('lobby-status').textContent=message;this.waiting(waiting);}
   send(message){if(this.ws?.readyState===WebSocket.OPEN)this.ws.send(JSON.stringify(message));}
   action(action,data={}){if(this.active&&this.connected&&!this.paused)this.send({type:'action',seq:++this.seq,turnId:this.turnId,action,...data});}
-  search(){this.send({type:'search',query:$('player-search').value});}
+  search(){if(!this.connected||this.mode!=='search')return;this.waiting(true);$('room-list').replaceChildren(element('p','Looking for open rooms…','settings-note'));this.send({type:'search',query:$('player-search').value});}
   connect(){
     clearTimeout(this.reconnectTimer);this.stopped=false;
     if(this.ws&&[WebSocket.OPEN,WebSocket.CONNECTING].includes(this.ws.readyState)){if(!this.connected)this.send({type:'hello',name:$('anonymous-name').value.trim(),token:this.token});return;}
     const name=$('anonymous-name').value.trim();
     if(!/^[A-Za-z0-9][A-Za-z0-9 _-]{2,19}$/.test(name)){this.status('Choose 3–20 letters, numbers, spaces, underscores or hyphens.');$('anonymous-name').focus();return;}
-    this.status('Connecting…');$('create-name').disabled=true;
+    this.status('Connecting…',true);$('create-name').disabled=true;
     let ws;
     try{ws=new WebSocket(socketURL(this.endpoint,location.href));}
     catch(error){this.status(error.message);$('create-name').disabled=false;$('online-retry').hidden=false;return;}
@@ -54,6 +59,8 @@ export class OnlineLobby {
         if(this.active){this.active=false;this.onClosed(m.message);}
         this.status(m.message);$('create-name').disabled=false;this.render();
       }else if(m.type==='rooms'){
+        if(this.mode!=='search')return;
+        this.waiting(false);
         const list=$('room-list');list.replaceChildren();
         if(!m.rooms.length)list.append(element('p','No open hosts found. Try another name, refresh, or host your own.','settings-note'));
         for(const room of m.rooms){
@@ -61,17 +68,17 @@ export class OnlineLobby {
           const button=element('button','Request match');button.onclick=()=>this.send({type:'join',room:room.id,country:this.config().p1country});row.append(info,button);list.append(row);
         }
       }else if(m.type==='hosting'){
-        this.mode='host';this.status('Your room is open. Accept a player below to begin.');this.render();
+        this.mode='host';this.status('Your room is open. Accept a player below to begin.',!m.requests.length);this.render();
         const list=$('join-requests');list.replaceChildren();
         if(!m.requests.length)list.append(element('p','Waiting for a player to request a match…','settings-note'));
         for(const person of m.requests){const row=element('div','','room-row'),label=element('strong',person.name),actions=element('div','','request-actions');
           for(const [text,accept] of [['Accept',true],['Decline',false]]){const b=element('button',text);b.onclick=()=>this.send({type:'decide',id:person.id,accept});actions.append(b);}
           row.append(label,actions);list.append(row);
         }
-      }else if(m.type==='pending'){this.mode='pending';this.status(`Waiting for ${m.host} to accept your request.`);this.render();}
+      }else if(m.type==='pending'){this.mode='pending';this.status(`Waiting for ${m.host} to accept your request.`,true);this.render();}
       else if(m.type==='notice'||m.type==='left'){this.mode='lobby';this.status(m.message||'Room closed. Ready for another match.');this.render();}
       else if(m.type==='match'){
-        this.active=true;this.seat=m.seat;this.names=m.names;this.turnId=m.snapshot.turnId;this.paused=false;this.onMatch(m);this.updateMatch(m.snapshot);
+        this.waiting(false);this.active=true;this.seat=m.seat;this.names=m.names;this.turnId=m.snapshot.turnId;this.paused=false;this.onMatch(m);this.updateMatch(m.snapshot);
       }else if(m.type==='snapshot'){
         this.paused=m.paused;this.turnId=m.snapshot.turnId;this.onSnapshot(m.snapshot,m.paused);this.updateMatch(m.snapshot);
       }else if(m.type==='roomClosed'){
@@ -85,7 +92,7 @@ export class OnlineLobby {
       if(event.code===4001){this.stopped=true;this.forgetSession();this.mode='identity';this.status('This session was opened in another connection. Choose a new name to play here.');if(this.active){this.active=false;this.onClosed('Session moved to another connection.');}}
       if(this.stopped){this.render();return;}
       if(this.active){this.paused=true;this.onSnapshot(null,true);$('online-status').textContent='Connection lost. Reconnecting…';}
-      this.status('Disconnected. Reconnecting…');this.render();
+      this.status('Disconnected. Reconnecting…',true);this.render();
       if(this.token&&this.attempt<6)this.reconnectTimer=setTimeout(()=>{this.attempt++;this.connect();},Math.min(1000*2**this.attempt,5000));
       else{this.status('The online service is unavailable. Retry shortly, or play on this device.');$('online-retry').hidden=false;}
     };
@@ -95,14 +102,20 @@ export class OnlineLobby {
     $('online-status').textContent=this.paused?'Match paused — waiting for reconnection.':snapshot.state==='over'?'Match complete.':`${this.names[this.seat]} · ${snapshot.turn===this.seat?'Your turn':this.names[snapshot.turn]+'’s turn'}${snapshot.state==='aiming'?` · ${snapshot.remaining}s`:''}`;
   }
   render(){
+    if(this.connected&&this.mode==='lobby')this.waiting(false);
+    const focused=document.activeElement;
     const locked=this.connected&&['host','pending'].includes(this.mode);
     $('identity-form').hidden=this.connected;
-    $('lobby-actions').hidden=!this.connected||!['lobby','search'].includes(this.mode);
+    $('lobby-actions').hidden=!this.connected||this.mode!=='lobby';
+    $('lobby-back').hidden=!this.connected||this.mode!=='search';
+    $('online-title').textContent=!this.connected?'A name. A challenge.':this.mode==='search'?'Find your rival.':this.mode==='host'?'Your room is open.':this.mode==='pending'?'Challenge sent.':'Choose your next move.';
+    document.querySelector('#online-lobby > .lobby-copy').textContent=!this.connected?'No account needed. Choose an anonymous name to host or search for players.':this.mode==='search'?'Search by host name, then send a match request.':this.mode==='host'?'Accept a challenger when you’re ready to play.':this.mode==='pending'?'Your rival will decide when the duel begins.':'Set your own ground rules or join an open room.';
     $('room-search').hidden=!this.connected||this.mode!=='search';
     $('hosting-room').hidden=!this.connected||this.mode!=='host';
     $('cancel-request').hidden=!this.connected||this.mode!=='pending';
-    $('online-retry').hidden=this.connected||this.ws?.readyState===WebSocket.CONNECTING;
+    $('online-retry').hidden=this.connected||!this.ws||this.ws.readyState===WebSocket.CONNECTING;
     $('go').disabled=locked;
     document.querySelectorAll('.match-settings [data-k],#p1country,#p2country').forEach(control=>control.disabled=locked);
+    if($('play-dialog').open&&focused?.closest('[hidden]')){$('online-title').tabIndex=-1;$('online-title').focus();}
   }
 }

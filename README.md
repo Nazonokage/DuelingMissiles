@@ -13,6 +13,12 @@ npm run dev
 
 Open the address printed by Vite. `npm run build` generates `dist`; `npm run preview` serves that production build locally. Three.js r128 is pinned and bundled, so the game no longer depends on a runtime CDN.
 
+## Welcome screen
+
+Choose Offline for a local settings dialog, or Online to create an anonymous name and host or find a player. Hosts configure the match before opening their room; joining players search host names and request approval. Missile wobble defaults to off.
+
+The home title floats and decorative cubes move continuously. The compact Home motion toggle saves a separate preference, initially on, independently of reduced gameplay motion. Home animations pause while a dialog is open, the page is hidden, or their elements are offscreen. Moving cubes are adapted from Uiverse.io by Nawsome. In-game chat is planned in `todo.md`, not implemented.
+
 ## Controls and sound
 
 The pre-match lobby uses a blue sky background, a clear settings panel, country flag previews, and scrollable controls on smaller screens. Titles, announcements, and primary game controls use the locally bundled **Black Ops One** military stencil font; smaller labels use a plain sans-serif for readability. The typeface comes from [Google Fonts](https://github.com/google/fonts/tree/main/ofl/blackopsone); its SIL Open Font License is included in `public/fonts/BlackOpsOne-OFL.txt`. The battlefield has no grid overlay.

@@ -55,7 +55,7 @@ async function fixture(page) {
   await route.fulfill({contentType:path.endsWith('.css')?'text/css':'text/javascript',body});
  });
  await page.route('http://127.0.0.1:4173/',async route=>route.fulfill({contentType:'text/html',body:await fs.readFile('index.html','utf8')}));
- await page.goto('/');
+ await page.goto('/');await page.locator('#offline-mode').click();
 }
 for(const team of [0,1])test(`player ${team+1}'s final launcher fires every turn even with an old reload lock`,async({page})=>{
  await fixture(page);await page.locator('#go').click();

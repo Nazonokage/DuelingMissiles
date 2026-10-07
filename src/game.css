@@ -212,3 +212,136 @@ body.heat #wind-hud{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 12px)
 @media(max-height:450px){#heat{max-height:calc(100dvh - 88px);overflow:auto}}
 
 .heat-controls{display:flex;gap:6px;margin-top:8px}.heat-controls button{min-width:40px;min-height:40px;background:var(--paper);font:inherit}.heat-controls #heat-reset{flex:1}
+
+/* Focused welcome and shared pre-flight dialog. */
+#setup{--welcome-navy:#133b66;--welcome-muted:#536a80;--welcome-paper:#f5f9ff;--welcome-ease:cubic-bezier(.23,1,.32,1)}
+#setup::before{animation:none}
+.setup-shell{max-width:1320px;padding:28px clamp(22px,5vw,72px);min-height:100dvh}
+.setup-layout{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);align-items:center;gap:clamp(36px,7vw,110px);padding:clamp(40px,7vh,88px) 0}
+.setup-intro{padding:0}
+#setup h1{font-size:clamp(56px,7.4vw,104px);line-height:.98;letter-spacing:-2px;margin-bottom:28px}
+.hero-copy{font-size:clamp(18px,1.7vw,23px);line-height:1.6}
+.briefing,.local-note{display:none}
+.flight-line{margin:32px 0 0;animation:welcome-float 7s ease-in-out infinite}
+.welcome-actions>.eyebrow{color:#d1eaff;margin-bottom:18px}
+.mode-button{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;padding:26px 28px;text-align:left;border:1px solid #ffffff80;border-radius:16px;background:var(--welcome-paper);color:var(--welcome-navy);box-shadow:0 14px 40px #11357120;transition:transform 160ms var(--welcome-ease),background 160ms ease-out}
+.mode-button+ .mode-button{margin-top:16px;background:#163f7080;color:#fff}
+.mode-button small,.mode-button strong,.mode-button em{display:block}
+.mode-button small{font:600 10px/1.5 'Segoe UI',sans-serif;letter-spacing:1.6px;opacity:.8}
+.mode-button strong{font:400 clamp(26px,2.5vw,34px)/1.25 var(--display);margin:9px 0}
+.mode-button em{font:normal 15px/1.5 'Segoe UI',sans-serif;opacity:.85}
+.mode-button>span:last-child{font:30px 'Segoe UI',sans-serif}
+.mode-button:active{transform:scale(.98)}
+.welcome-note{font-size:13px;line-height:1.6;color:#ecf5ff;margin:22px 0 0;text-align:center}
+@media(hover:hover) and (pointer:fine){.mode-button:hover{transform:translateY(-3px)}.mode-button+ .mode-button:hover{background:#163f70c0}}
+#play-dialog{color:var(--welcome-navy);background:var(--welcome-paper);border:1px solid #fff;border-radius:22px;box-shadow:0 32px 90px #061c4755;padding:0;width:min(600px,calc(100vw - 32px));max-height:calc(100dvh - 40px);box-sizing:border-box;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;text-align:left}
+#play-dialog[open]{animation:dialog-arrive 220ms var(--welcome-ease)}
+#play-dialog::backdrop{background:#081e45aa;backdrop-filter:blur(8px)}
+.dialog-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-bottom:1px solid #d3deeb;background:var(--welcome-paper);position:sticky;top:0;z-index:2}
+.dialog-nav>span{font-size:11px;font-weight:700;letter-spacing:1.4px}
+.dialog-nav button{color:var(--welcome-navy);font:600 14px 'Segoe UI',sans-serif;min-height:44px;min-width:44px;border:0;border-radius:8px}
+.dialog-nav button:hover{background:#e2ebf5}#modal-close{font-size:28px}
+#play-dialog .match-settings{border:0;border-radius:0;box-shadow:none;background:transparent;width:100%;max-width:none;box-sizing:border-box;padding:28px 32px}
+#play-dialog #online-lobby{background:transparent;border:0;border-radius:0;color:var(--welcome-navy);max-width:none;margin:0;padding:30px 32px}
+#play-dialog #online-lobby h2{color:var(--welcome-navy);font-size:30px}
+#play-dialog .lobby-copy,#play-dialog #online-lobby .settings-note,#play-dialog .room-row small{color:var(--welcome-muted)}
+#play-dialog .lobby-copy{margin:12px 0 24px}
+#play-dialog #lobby-status{background:#e2ebf5;border-radius:8px;padding:12px;font-size:14px}
+#play-dialog #online-lobby button{background:var(--welcome-navy);color:#fff;border-color:var(--welcome-navy);min-height:48px}
+#play-dialog #online-lobby button:hover{background:#205890}
+#play-dialog #online-lobby #create-name{background:var(--welcome-navy);color:#fff;margin-top:18px}
+#play-dialog .room-row{border-color:#c7d6e7}
+#play-dialog #lobby-back{margin:0 32px 28px;padding:12px 0;color:var(--welcome-navy);border:0;font:600 14px 'Segoe UI',sans-serif}
+#play-dialog #lobby-actions{flex-direction:column}
+#play-dialog #lobby-actions button{text-align:left;padding:20px;font-size:18px}
+#play-dialog #search-matches{background:transparent;color:var(--welcome-navy)}
+#play-dialog .extra-settings{grid-template-columns:1fr 1fr}
+#play-dialog .settings-heading{margin-bottom:24px}
+#setup #go{min-height:58px}
+#play-dialog .start-note{margin-bottom:0}
+.welcome-resting .flight-line,.flight-line.out-of-view{animation-play-state:paused}
+@keyframes welcome-float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(1deg)}}
+@keyframes dialog-arrive{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@media(max-width:820px){.setup-shell{padding:22px}.setup-layout{display:flex;gap:38px;padding:38px 0}.setup-intro{text-align:center}.welcome-actions{width:100%;max-width:460px;align-self:center}.welcome-actions>.eyebrow{text-align:center}#setup h1{font-size:clamp(54px,12vw,88px)}.flight-line{display:block;max-width:240px;margin:14px auto 0}.hero-copy{font-size:18px}.setup-footer{font-size:10px}.local-badge{font-size:9px}.mode-button{padding:22px 24px}}
+@media(max-width:480px){.setup-nav{gap:8px}.brand-mark{font-size:10px}.local-badge{font-size:8px;padding:7px}.local-badge i{display:none}#play-dialog{max-height:calc(100dvh - 20px);width:calc(100vw - 20px);border-radius:16px}.dialog-nav{padding:10px 16px}#play-dialog .match-settings,#play-dialog #online-lobby{padding:24px 20px}#play-dialog .extra-settings{grid-template-columns:1fr}.dialog-nav>span{font-size:10px}.mode-button em{font-size:14px}}
+@media(max-height:520px) and (min-width:821px){.setup-layout{padding:28px 0}#setup h1{font-size:60px}.flight-line{display:none}.mode-button{padding:18px 24px}.setup-shell{padding-block:16px}}
+@media(prefers-reduced-motion:reduce){.flight-line,#play-dialog[open]{animation:none}.mode-button{transition:none}.mode-button:hover,.mode-button:active{transform:none}}
+/* Keep the primary setup action within easy reach on laptop screens. */
+#play-dialog .match-settings{padding-block:22px}
+#play-dialog .settings-heading{margin-bottom:16px}
+#play-dialog .setting-row{margin-block:12px}
+#play-dialog .arena-row{padding-bottom:14px;margin-bottom:14px}
+#play-dialog .volume-setting{margin-block:12px}
+#play-dialog .settings-note{font-size:13px}
+#play-dialog .volume-setting .settings-note{display:none}
+#play-dialog .player-choice label{font-size:14px}
+
+/* Moving cubes adapted from Uiverse.io by Nawsome. Transform-only waiting indicator. */
+.lobby-loader{display:grid;place-items:center;height:124px;overflow:hidden;pointer-events:none}
+.lobby-loader .boxes{--size:24px;--duration:1200ms;width:calc(var(--size)*3);height:calc(var(--size)*2);position:relative;transform-style:preserve-3d;transform-origin:50% 50%;margin-top:calc(var(--size)*-1.5);transform:rotateX(60deg) rotateZ(45deg)}
+.lobby-loader .box{width:var(--size);height:var(--size);position:absolute;top:0;left:0;transform-style:preserve-3d;animation-duration:var(--duration);animation-timing-function:linear;animation-iteration-count:infinite;animation-play-state:paused}
+.lobby-loader .box:nth-child(1){transform:translate(100%,0);animation-name:lobby-box-1}
+.lobby-loader .box:nth-child(2){transform:translate(0,100%);animation-name:lobby-box-2}
+.lobby-loader .box:nth-child(3){transform:translate(100%,100%);animation-name:lobby-box-3}
+.lobby-loader .box:nth-child(4){transform:translate(200%,0);animation-name:lobby-box-4}
+.lobby-loader .box>div{--face:#76b5ec;--z:calc(var(--size)/2);--ry:0deg;--rx:0deg;position:absolute;width:100%;height:100%;background:var(--face);transform:rotateY(var(--ry)) rotateX(var(--rx)) translateZ(var(--z))}
+.lobby-loader .box>div:nth-child(1){top:0;left:0}
+.lobby-loader .box>div:nth-child(2){--face:#1b4a7d;--ry:90deg;right:0}
+.lobby-loader .box>div:nth-child(3){--face:#2667b0;--rx:-90deg}
+.lobby-loader .box>div:nth-child(4){--face:#d3deeb;--z:calc(var(--size)*-3);top:0;left:0}
+#play-dialog[open] #online-pane:not([hidden]) .lobby-loader.in-view:not([hidden]) .box{animation-play-state:running}
+body.page-hidden #play-dialog .lobby-loader .box{animation-play-state:paused!important}
+@keyframes lobby-box-1{0%,50%{transform:translate(100%,0)}100%{transform:translate(200%,0)}}
+@keyframes lobby-box-2{0%{transform:translate(0,100%)}50%{transform:translate(0,0)}100%{transform:translate(100%,0)}}
+@keyframes lobby-box-3{0%,50%{transform:translate(100%,100%)}100%{transform:translate(0,100%)}}
+@keyframes lobby-box-4{0%{transform:translate(200%,0)}50%{transform:translate(200%,100%)}100%{transform:translate(100%,100%)}}
+@media(prefers-reduced-motion:reduce){#play-dialog .lobby-loader .box{animation:none}}
+#setup:has(#reduced-motion:checked) #lobby-loader .box{animation:none}
+
+/* Small, purposeful icon feedback; all hit targets remain stationary. */
+.mode-button>span[aria-hidden],#go>span[aria-hidden]{display:inline-block;transition:transform 180ms var(--welcome-ease)}
+#random-name .shuffle-icon{display:inline-block;line-height:1;transform:rotate(var(--shuffle-turn,0deg));transition:transform 240ms var(--welcome-ease)}
+#setup summary>span{display:inline-block;transition:transform 180ms var(--welcome-ease)}
+#setup summary:focus-visible>span{transition:none}
+@media(hover:hover) and (pointer:fine){
+  .mode-button:hover>span[aria-hidden],#setup #go:hover>span[aria-hidden]{transform:translate(4px,-4px)}
+}
+.mode-button:active>span[aria-hidden],#setup #go:active>span[aria-hidden]{transform:translate(2px,-2px) scale(.9)}
+@media(prefers-reduced-motion:reduce){
+  .mode-button>span[aria-hidden],#go>span[aria-hidden],#random-name .shuffle-icon,#setup summary>span{transition:none}
+  .mode-button>span[aria-hidden],#setup #go>span[aria-hidden],#random-name .shuffle-icon{transform:none!important}
+}
+#setup:has(#reduced-motion:checked) :is(.mode-button>span[aria-hidden],#go>span[aria-hidden],.shuffle-icon,summary>span){transition:none}
+#setup:has(#reduced-motion:checked) :is(.mode-button>span[aria-hidden],#go>span[aria-hidden],.shuffle-icon){transform:none!important}
+
+/* Home-screen motion: floating headline and Nawsome's interlocking cubes. */
+#setup #game-title{animation:home-title-float 6s ease-in-out infinite}
+.home-motion{display:flex;align-items:center;gap:18px;height:124px;max-width:500px;margin-top:12px}
+.home-motion .flight-line{flex:1;min-width:0;margin:0}
+.home-cubes{flex:0 0 150px;width:150px;height:124px}
+.home-cubes .boxes{--size:26px;--duration:1600ms}
+.home-cubes .box>div:nth-child(1){--face:#d1eaff}
+.home-cubes .box>div:nth-child(2){--face:#76b5ec}
+.home-cubes .box>div:nth-child(3){--face:#a8c8eb}
+.home-cubes .box>div:nth-child(4){--face:#11357140}
+body.intro:not(.welcome-resting) .home-cubes:not(.out-of-view) .box{animation-play-state:running}
+body.welcome-resting #setup #game-title,#setup #game-title.out-of-view,body:not(.intro) #setup #game-title{animation-play-state:paused}
+@keyframes home-title-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media(max-width:820px){.home-motion{height:100px;max-width:340px;margin:6px auto -12px}.home-cubes{flex-basis:130px;width:130px;height:100px}.home-cubes .boxes{--size:22px}.home-motion .flight-line{display:block}}
+@media(max-height:520px) and (min-width:821px){.home-motion{height:88px;margin-top:0}.home-cubes{height:88px}.home-cubes .boxes{--size:20px}}
+@media(prefers-reduced-motion:reduce){#setup #game-title,.home-cubes .box{animation:none}}
+#setup:has(#reduced-motion:checked) .flight-line{animation:none}
+
+/* Explicit home-motion control takes precedence over the system's default. */
+#setup.home-motion-enabled #game-title{animation:home-title-float 6s ease-in-out infinite}
+#setup.home-motion-enabled .home-cubes .box{animation:var(--home-cube-animation) 1600ms linear infinite paused}
+.home-cubes .box:nth-child(1){--home-cube-animation:lobby-box-1}
+.home-cubes .box:nth-child(2){--home-cube-animation:lobby-box-2}
+.home-cubes .box:nth-child(3){--home-cube-animation:lobby-box-3}
+.home-cubes .box:nth-child(4){--home-cube-animation:lobby-box-4}
+body.intro:not(.welcome-resting) #setup.home-motion-enabled .home-cubes:not(.out-of-view) .box{animation-play-state:running}
+body.welcome-resting #setup.home-motion-enabled #game-title,#setup.home-motion-enabled #game-title.out-of-view,body:not(.intro) #setup.home-motion-enabled #game-title{animation-play-state:paused}
+#setup.home-motion-disabled #game-title,#setup.home-motion-disabled .home-cubes .box,#setup.home-motion-disabled .flight-line{animation:none}
+#home-motion-toggle{min-height:28px;padding:4px 8px;border:1px solid #ffffff70;border-radius:6px;color:#fff;font:600 10px/1.4 'Segoe UI',sans-serif;letter-spacing:.3px;background:#133b6640;white-space:nowrap;position:relative}
+#home-motion-toggle::before{content:"";position:absolute;inset:-8px 0}
+#home-motion-toggle:hover{background:#133b6680}

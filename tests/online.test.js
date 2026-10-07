@@ -12,7 +12,7 @@ const command=(g,action,data={},player=g.turn)=>g.command(player,{turnId:g.turnI
 test('anonymous names and host settings are bounded and normalized',()=>{
   for(const name of ['Sky-1234','Pilot Three','A_b'])assert.equal(validName(name),true);
   for(const name of ['',null,'ab','<img src=x>','a'.repeat(21),' name'])assert.equal(validName(name),false);
-  assert.deepEqual(matchConfig({n:900,hp:500,theme:'x'}),{wobble:true,n:5,hp:2,theme:'blueprint',p1country:'italy',p2country:'france'});
+  assert.deepEqual(matchConfig({n:900,hp:500,theme:'x'}),{wobble:false,n:5,hp:2,theme:'blueprint',p1country:'italy',p2country:'france'});
 });
 test('server owns charging, shot result, health and turn; stale/out-of-turn controls are rejected',()=>{
   const g=new Duel({},14);advance(g,1.5);

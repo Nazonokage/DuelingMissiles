@@ -23,27 +23,20 @@
 <button data-a="prev" title="previous cannon" style="grid-area:p;display:flex;align-items:center;justify-content:center;gap:4px">‹ <svg viewBox="0 0 32 20" width="30" height="20" fill="currentColor" style="pointer-events:none"><rect x="5" y="3" width="23" height="7" rx="2.5" transform="rotate(-18 10 10)"/><circle cx="11" cy="14.5" r="4.5"/><circle cx="11" cy="14.5" r="1.5" fill="var(--paper)"/></svg></button><button id="msl" data-a="msl" title="pick a spent missile (M)" style="grid-area:c">🚀 M missiles</button><button data-a="next" title="next cannon" style="grid-area:n;display:flex;align-items:center;justify-content:center;gap:4px"><svg viewBox="0 0 32 20" width="30" height="20" fill="currentColor" style="pointer-events:none"><rect x="5" y="3" width="23" height="7" rx="2.5" transform="rotate(-18 10 10)"/><circle cx="11" cy="14.5" r="4.5"/><circle cx="11" cy="14.5" r="1.5" fill="var(--paper)"/></svg> ›</button></div>
 <div class="ov" id="setup">
   <div class="setup-shell">
-    <header class="setup-nav"><span class="brand-mark"><svg aria-hidden="true" viewBox="0 0 32 32"><path d="M9 23 23 9m-9 0h9v9M6 14l5-5m7 17 5-5"/></svg> DUELING MISSILES</span><span class="local-badge"><i></i> LOCAL · 2 PLAYERS</span></header>
+    <header class="setup-nav"><span class="brand-mark"><svg aria-hidden="true" viewBox="0 0 32 32"><path d="M9 23 23 9m-9 0h9v9M6 14l5-5m7 17 5-5"/></svg> DUELING MISSILES</span><span class="local-badge"><i></i> LOCAL + ONLINE · 2 PLAYERS</span></header>
     <main class="setup-layout">
       <section class="setup-intro" aria-labelledby="game-title">
         <p class="eyebrow">A LITTLE AIM. A LITTLE CHAOS.</p>
         <h1 id="game-title">DUELING<br><span>MISSILES.</span></h1>
         <p class="hero-copy">Clear skies. Friendly rivalry.<br> One shot to turn it all around.</p>
-        <div class="flight-line" aria-hidden="true"><svg viewBox="0 0 400 90"><path d="M0 80C115 80 120 5 240 20s115 50 145-12"/><path d="m374 11 13-7 2 15"/></svg></div>
+        <div class="home-motion"><div class="flight-line" aria-hidden="true"><svg viewBox="0 0 400 90"><path d="M0 80C115 80 120 5 240 20s115 50 145-12"/><path d="m374 11 13-7 2 15"/></svg></div><div class="home-cubes lobby-loader" aria-hidden="true"><div class="boxes"><div class="box"><div></div><div></div><div></div><div></div></div><div class="box"><div></div><div></div><div></div><div></div></div><div class="box"><div></div><div></div><div></div><div></div></div><div class="box"><div></div><div></div><div></div><div></div></div></div></div></div>
         <div class="briefing"><span class="eyebrow">YOUR FLIGHT PLAN</span><p><b>01</b> Pick your side.</p><p><b>02</b> Hold to charge. Release to fire.</p><p><b>03</b> Last launcher standing wins.</p></div>
         <p class="local-note">Play together on one screen, or challenge another player online.</p>
-        <section id="online-lobby" aria-labelledby="online-title">
-          <p class="eyebrow">FIND YOUR RIVAL</p><h2 id="online-title">A name. A challenge.</h2>
-          <p class="lobby-copy">No account needed. Choose an anonymous name to host or search for players.</p>
-          <div id="identity-form"><label for="anonymous-name">Your player name</label><div class="name-field"><input id="anonymous-name" maxlength="20" minlength="3" autocomplete="off" spellcheck="false"><button id="random-name" aria-label="Generate another username">↻</button></div><button id="create-name">Create name &amp; continue</button></div>
-          <p id="lobby-status" role="status" aria-live="polite"></p>
-          <div id="lobby-actions" hidden><button id="host-match">Host match</button><button id="search-matches">Find a player</button></div>
-          <div id="room-search" hidden><label for="player-search">Search host names</label><div class="search-field"><input id="player-search" maxlength="20" placeholder="Any player name"><button id="refresh-matches">Refresh</button></div><div id="room-list"></div></div>
-          <div id="hosting-room" hidden><p class="lobby-copy">Your current match settings are used. You choose who joins.</p><div id="join-requests"></div><button id="leave-room">Close room</button></div>
-          <button id="cancel-request" hidden>Cancel request</button><button id="online-retry" hidden>Reconnect</button>
-        </section>
+
       </section>
-      <section class="match-settings" aria-labelledby="settings-title">
+      <div class="welcome-actions"><p class="eyebrow">CHOOSE YOUR PLAYGROUND</p><button id="offline-mode" class="mode-button"><span><small>ONE SCREEN · TWO PLAYERS</small><strong>Offline duel</strong><em>Good company. Friendly fire.</em></span><span aria-hidden="true">↗</span></button><button id="online-mode" class="mode-button"><span><small>TWO SCREENS · ONE RIVALRY</small><strong>Play online</strong><em>Find your rival. Make your shot.</em></span><span aria-hidden="true">↗</span></button><p class="welcome-note">No accounts. Just a little friendly competition.</p></div>
+    </main>
+    <dialog id="play-dialog" aria-labelledby="dialog-title"><div class="dialog-nav"><button id="modal-back" aria-label="Go back">← Back</button><span id="dialog-title">OFFLINE DUEL</span><button id="modal-close" aria-label="Close setup">×</button></div><div id="settings-pane">      <section class="match-settings" aria-labelledby="settings-title">
         <div class="settings-heading"><div><p class="eyebrow">PRE-FLIGHT CHECK</p><h2 id="settings-title">Make it your match.</h2></div></div>
         <div class="setting-row"><span id="launchers-label">Launchers <small>Per player</small></span><div class="segments" role="group" aria-labelledby="launchers-label"><button class="on" data-k="n" data-v="5">5</button><button data-k="n" data-v="7">7</button></div></div>
         <div class="setting-row"><span id="hp-label">Armor <small>Health per launcher</small></span><div class="segments" role="group" aria-labelledby="hp-label"><button data-k="hp" data-v="1">1</button><button class="on" data-k="hp" data-v="2">2</button><button data-k="hp" data-v="3">3</button></div></div>
@@ -57,7 +50,7 @@
         <details><summary>Camera, effects &amp; quality <span aria-hidden="true">+</span></summary>
           <div class="extra-settings">
             <label><input id="reduced-motion" type="checkbox"> Reduced motion</label>
-            <label><input id="wobble" type="checkbox" checked> Missile wobble</label>
+            <label><input id="wobble" type="checkbox"> Missile wobble</label>
             <label><input id="particles" type="checkbox" checked> Particles</label>
             <label><input id="shake" type="checkbox" checked> Camera shake</label>
             <label><input id="sfx" type="checkbox" checked> Sound effects</label>
@@ -67,11 +60,20 @@
             <div class="extra-field"><label for="seed">Match seed</label><input id="seed" type="number" min="0" max="4294967295" value="2026"></div>
           </div>
         </details>
-        <button id="go">PLAY ON THIS DEVICE <span aria-hidden="true">↗</span></button>
-        <p class="start-note">Local duel: pass the controls when the turn changes.<br>Online: choose a name, then host or find a player.</p>
-      </section>
-    </main>
-    <footer class="setup-footer"><span>SMALL LAUNCHERS. BIG RIVALRIES.</span><span><kbd>Space</kbd> Fire <span class="footer-divider">/</span> <kbd>A D</kbd> Aim <span class="footer-divider">/</span> Drag to look</span></footer>
+        <button id="go">START OFFLINE DUEL <span aria-hidden="true">↗</span></button>
+        <p class="start-note">Pass the controls when the turn changes.</p>
+      </section></div><div id="online-pane" hidden>        <section id="online-lobby" aria-labelledby="online-title">
+          <p class="eyebrow">FIND YOUR RIVAL</p><h2 id="online-title">A name. A challenge.</h2>
+          <p class="lobby-copy">No account needed. Choose an anonymous name to host or search for players.</p>
+          <div id="identity-form"><label for="anonymous-name">Your player name</label><div class="name-field"><input id="anonymous-name" maxlength="20" minlength="3" autocomplete="off" spellcheck="false"><button id="random-name" aria-label="Generate another username"><span class="shuffle-icon" aria-hidden="true">↻</span></button></div><button id="create-name">Create name &amp; continue</button></div>
+          <div id="lobby-loader" class="lobby-loader" hidden aria-hidden="true"><div class="boxes"><div class="box"><div></div><div></div><div></div><div></div></div><div class="box"><div></div><div></div><div></div><div></div></div><div class="box"><div></div><div></div><div></div><div></div></div><div class="box"><div></div><div></div><div></div><div></div></div></div></div>
+          <p id="lobby-status" role="status" aria-live="polite"></p>
+          <div id="lobby-actions" hidden><button id="host-match">Host match</button><button id="search-matches">Find a player</button></div>
+          <div id="room-search" hidden><label for="player-search">Search host names</label><div class="search-field"><input id="player-search" maxlength="20" placeholder="Any player name"><button id="refresh-matches">Refresh</button></div><div id="room-list"></div></div>
+          <div id="hosting-room" hidden><p class="lobby-copy">Your match is ready. You choose who joins.</p><div id="join-requests"></div><button id="leave-room">Close room</button></div>
+          <button id="cancel-request" hidden>Cancel request</button><button id="online-retry" hidden>Reconnect</button>
+        </section><button id="lobby-back" hidden>← Back to online options</button></div></dialog>
+    <footer class="setup-footer"><span>SMALL LAUNCHERS. BIG RIVALRIES.</span><button id="home-motion-toggle" aria-pressed="true">Home motion: on</button><span><kbd>Space</kbd> Fire <span class="footer-divider">/</span> <kbd>A D</kbd> Aim <span class="footer-divider">/</span> Drag to look</span></footer>
   </div>
 </div>
 <div class="ov" id="end"><div id="endt"></div><button onclick="location.reload()">Play again</button></div>

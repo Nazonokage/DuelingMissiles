@@ -3,6 +3,7 @@ import { TrajectoryHistory } from './game/trajectory-history.js';
 import { createHeldInput, bindHoldButton } from './game/input.js';
 import { ImpactCamera } from './camera/impact-camera.js';
 import { ViewTransition } from './camera/view-transition.js';
+import { setupWelcome } from './welcome.js';
 import { OnlineLobby } from './online/lobby.js';
 import { FixedStepper, seededRandom } from './game/simulation.js';
 import { COUNTRIES, country, flagCanvas } from './cosmetics/countries.js';
@@ -28,7 +29,7 @@ const FACTION_THEMES={
   'polkka':{label:'Säkkijärven Polkka',url:'/music/S\u00e4kkij\u00e4rven Polkka.mp3',context:'Finnish folk march'},
   none:{label:'None',url:'',context:'Music disabled'}
 };
-const cfg={n:5,hp:2,theme:'blueprint',p1theme:'panzer-vor',p2theme:'erika',p1country:'italy',p2country:'france',wobble:true,particles:true,shake:true,sfx:true,colorSafe:false,cosmetics:true,quality:'auto'};
+const cfg={n:5,hp:2,theme:'blueprint',p1theme:'panzer-vor',p2theme:'erika',p1country:'italy',p2country:'france',wobble:false,particles:true,shake:true,sfx:true,colorSafe:false,cosmetics:true,quality:'auto'};
 let online=null,onlineEvent=0,onlineSteer=0,onlineTurn=0;
 const canAct=()=>!online?.active||(online.connected&&!online.paused&&online.seat===turn);
 document.querySelectorAll('#setup [data-k]').forEach(b=>b.onclick=()=>{
@@ -109,6 +110,7 @@ const fwd=()=>turn===0?-1:1,rgt=()=>turn===0?1:-1,mine=()=>cannons[turn],alive=t
 const usable=c=>c&&c.hp>0&&!c.locked;
 
 function start(){
+  document.getElementById('play-dialog').close();
   RM=document.getElementById('reduced-motion').checked;
   for(const key of ['particles','shake','sfx','cosmetics'])cfg[key]=document.getElementById(key).checked;
   if(!online?.active)cfg.wobble=document.getElementById('wobble').checked;
@@ -722,6 +724,7 @@ online=new OnlineLobby({config:()=>({...cfg,wobble:document.getElementById('wobb
   onClosed:message=>{over=true;state='over';held.clear();music.stop();document.getElementById('endt').textContent=message;document.getElementById('end').style.display='flex';}
 });
 
+setupWelcome(online);
 document.getElementById('reduced-motion').checked=RM;
 for(const i of [1,2]){const select=document.getElementById('p'+i+'country');
  for(const [id,c] of Object.entries(COUNTRIES)){const o=document.createElement('option');o.value=id;o.textContent=c.name;select.append(o)}
